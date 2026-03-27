@@ -1,31 +1,54 @@
+import { NavLink, Outlet } from "react-router-dom";
+
 export default function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-teal-600 text-white">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <a href="/" className="text-2xl font-bold hover:text-teal-100">
+          <NavLink to="/" className="text-2xl font-bold hover:text-teal-100">
             Vinted Clone
-          </a>
+          </NavLink>
           <nav className="flex items-center gap-4 text-sm">
-            <a href="/" className="hover:text-teal-200">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                isActive ? "text-white font-semibold" : "hover:text-teal-200"
+              }
+            >
               Accueil
-            </a>
-            <a href="/my-articles" className="hover:text-teal-200">
+            </NavLink>
+            <NavLink
+              to="/my-articles"
+              className={({ isActive }) =>
+                isActive ? "text-white font-semibold" : "hover:text-teal-200"
+              }
+            >
               Mes annonces
-            </a>
-            <a href="/favorites" className="hover:text-teal-200">
+            </NavLink>
+            <NavLink
+              to="/favorites"
+              className={({ isActive }) =>
+                isActive ? "text-white font-semibold" : "hover:text-teal-200"
+              }
+            >
               Favoris
-            </a>
-            <a
-              href="/publish"
-              className="bg-white text-teal-700 font-semibold px-4 py-1.5 rounded-full hover:bg-teal-50"
+            </NavLink>
+            <NavLink
+              to="/publish"
+              className={({ isActive }) =>
+                isActive
+                  ? "bg-white text-teal-700 font-semibold px-4 py-1.5 rounded-full"
+                  : "bg-white text-teal-700 font-semibold px-4 py-1.5 rounded-full hover:bg-teal-50"
+              }
             >
               Publier
-            </a>
+            </NavLink>
           </nav>
         </div>
       </header>
       <main className="max-w-4xl mx-auto p-6">
+        <Outlet />
         <h2 className="text-xl font-semibold mb-4">
           Bienvenue sur le projet Vinted Clone !
         </h2>
