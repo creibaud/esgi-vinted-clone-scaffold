@@ -1,3 +1,3 @@
 export default function PublishPage() {
-  return <h1>Publier une annonce</h1>;
+    return <h1>Publier une annonce</h1>;
 }

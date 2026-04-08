@@ -15,7 +15,7 @@ const favorites: Map<string, Set<string>> = new Map();
 
 const getArticles = () => articles;
 const setArticles = (newArticles: Article[]) => {
-  articles = newArticles;
+    articles = newArticles;
 };
 
 // Mount routes
@@ -23,6 +23,6 @@ app.use("/api", createArticlesRouter(getArticles, setArticles, favorites));
 app.use("/api", createFavoritesRouter(getArticles, favorites));
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`${articles.length} articles loaded`);
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`${articles.length} articles loaded`);
 });
