@@ -33,7 +33,7 @@ export function ArticleCard({
     const conditionLabel = findConditionLabel({ condition: article.condition });
 
     return (
-        <Card className="max-w-sm overflow-hidden py-0">
+        <Card className="overflow-hidden py-0">
             <div className="relative">
                 <img
                     src={article.imageUrl}
@@ -53,7 +53,7 @@ export function ArticleCard({
                 >
                     <HugeiconsIcon
                         icon={FavouriteIcon}
-                        className="size-4 fill-transparent text-white transition group-hover/toggle:text-red-500 group-data-[state=on]/toggle:fill-red-500 group-data-[state=on]/toggle:text-red-500"
+                        className="text-foreground size-4 fill-transparent transition group-data-[state=on]/toggle:fill-red-500 group-data-[state=on]/toggle:text-red-500"
                     />
                 </Toggle>
                 <div className="absolute bottom-2 left-2 flex gap-1.5">
