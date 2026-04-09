@@ -14,7 +14,7 @@
 
 ### 1.2 Composants UI partagés
 
-- [ ] Créer `src/components/LoadingSpinner.tsx` — spinner centré affiché pendant le chargement
+- [X] Créer `src/components/LoadingSpinner.tsx` — spinner centré affiché pendant le chargement
 - [ ] Créer `src/components/ErrorMessage.tsx` — affichage message d'erreur (props: `message: string`)
 - [ ] Créer `src/components/ArticleCard.tsx`
   - Props : `article: Article`, `isFavorite: boolean`, `onToggleFavorite: () => void`
