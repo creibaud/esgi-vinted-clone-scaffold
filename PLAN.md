@@ -9,50 +9,50 @@
 
 ### 1.1 Utilitaires partagés
 
-- [X] Créer `src/lib/formatters.ts` avec `formatPrice(price: number): string` → `"12,50 €"` et `formatDate(date: Date | string): string` → `"15/04/2026"`
-- [X] Créer `src/hooks/useDebouncedValue.ts` — hook générique `useDebouncedValue<T>(value: T, delay: number): T`
+- [x] Créer `src/lib/formatters.ts` avec `formatPrice(price: number): string` → `"12,50 €"` et `formatDate(date: Date | string): string` → `"15/04/2026"`
+- [x] Créer `src/hooks/useDebouncedValue.ts` — hook générique `useDebouncedValue<T>(value: T, delay: number): T`
 
 ### 1.2 Composants UI partagés
 
-- [X] Créer `src/components/LoadingSpinner.tsx` — spinner centré affiché pendant le chargement
-- [ ] Créer `src/components/ErrorMessage.tsx` — affichage message d'erreur (props: `message: string`)
+- [x] Créer `src/components/LoadingSpinner.tsx` — spinner centré affiché pendant le chargement
+- [x] Créer `src/components/ErrorMessage.tsx` — affichage message d'erreur (props: `icon`, `title`, `message`, `content`)
 - [ ] Créer `src/components/ArticleCard.tsx`
-  - Props : `article: Article`, `isFavorite: boolean`, `onToggleFavorite: () => void`
-  - Affiche : image (`object-cover`), titre, prix via `formatPrice()`, catégorie, état, vendeur
-  - Lien cliquable vers `/articles/:id` (NavLink ou Link)
-  - Bouton favori (icône coeur, état actif/inactif selon `isFavorite`)
+    - Props : `article: Article`, `isFavorite: boolean`, `onToggleFavorite: () => void`
+    - Affiche : image (`object-cover`), titre, prix via `formatPrice()`, catégorie, état, vendeur
+    - Lien cliquable vers `/articles/:id` (NavLink ou Link)
+    - Bouton favori (icône coeur, état actif/inactif selon `isFavorite`)
 - [ ] Créer `src/components/ArticleGrid.tsx`
-  - Props : `articles: Article[]`, `favoriteIds: Set<string>`, `onToggleFavorite: (id: string) => void`
-  - Grille responsive : 1 col mobile, 2 col md, 3 col lg (Tailwind)
-  - Affiche `ArticleCard` pour chaque article
+    - Props : `articles: Article[]`, `favoriteIds: Set<string>`, `onToggleFavorite: (id: string) => void`
+    - Grille responsive : 1 col mobile, 2 col md, 3 col lg (Tailwind)
+    - Affiche `ArticleCard` pour chaque article
 - [ ] Créer `src/components/ArticleForm.tsx`
-  - Props : `defaultValues?: ArticleFormData`, `onSubmit: (data: ArticleFormData) => Promise<void>`, `isLoading: boolean`
-  - Champs : `title`, `description`, `price`, `category` (select CATEGORIES), `size`, `condition` (select CONDITIONS), `imageUrl`
-  - Validation React Hook Form : tous requis, title 3-100 chars, description 10-1000 chars, price > 0
-  - Messages d'erreur sous chaque champ invalide
-  - Réutilisé dans PublishPage (vide) ET EditArticlePage (prérempli)
+    - Props : `defaultValues?: ArticleFormData`, `onSubmit: (data: ArticleFormData) => Promise<void>`, `isLoading: boolean`
+    - Champs : `title`, `description`, `price`, `category` (select CATEGORIES), `size`, `condition` (select CONDITIONS), `imageUrl`
+    - Validation React Hook Form : tous requis, title 3-100 chars, description 10-1000 chars, price > 0
+    - Messages d'erreur sous chaque champ invalide
+    - Réutilisé dans PublishPage (vide) ET EditArticlePage (prérempli)
 
 ### 1.3 Hooks TanStack Query
 
 - [ ] Créer `src/hooks/useArticles.ts`
-  - `useQuery({ queryKey: ['articles', filters], queryFn: () => api.get('/api/articles?' + params) })`
-  - Accepte un objet `filters` (search, category, condition, priceMin, priceMax, sort)
-  - Construit les query params en excluant les valeurs vides
+    - `useQuery({ queryKey: ['articles', filters], queryFn: () => api.get('/api/articles?' + params) })`
+    - Accepte un objet `filters` (search, category, condition, priceMin, priceMax, sort)
+    - Construit les query params en excluant les valeurs vides
 - [ ] Créer `src/hooks/useArticle.ts`
-  - `useQuery({ queryKey: ['article', id], queryFn: () => api.get('/api/articles/' + id) })`
+    - `useQuery({ queryKey: ['article', id], queryFn: () => api.get('/api/articles/' + id) })`
 - [ ] Créer `src/hooks/useMyArticles.ts`
-  - `useQuery({ queryKey: ['myArticles'], queryFn: () => api.get('/api/users/' + userId + '/articles') })`
-  - Utilise `useCurrentUserId()` pour le userId
+    - `useQuery({ queryKey: ['myArticles'], queryFn: () => api.get('/api/users/' + userId + '/articles') })`
+    - Utilise `useCurrentUserId()` pour le userId
 - [ ] Créer `src/hooks/useFavorites.ts`
-  - `useQuery({ queryKey: ['favorites'], queryFn: () => api.get('/api/favorites') })`
-  - Retourne aussi `favoriteIds: Set<string>` calculé depuis la liste
+    - `useQuery({ queryKey: ['favorites'], queryFn: () => api.get('/api/favorites') })`
+    - Retourne aussi `favoriteIds: Set<string>` calculé depuis la liste
 - [ ] Créer `src/hooks/useArticleMutations.ts`
-  - `createArticle` : POST `/api/articles` → invalide `['articles']`, `['myArticles']` → redirect vers `/articles/:id`
-  - `updateArticle` : PUT `/api/articles/:id` → invalide `['articles']`, `['article', id]`, `['myArticles']`
-  - `deleteArticle` : DELETE `/api/articles/:id` → invalide `['articles']`, `['myArticles']`, `['favorites']`
+    - `createArticle` : POST `/api/articles` → invalide `['articles']`, `['myArticles']` → redirect vers `/articles/:id`
+    - `updateArticle` : PUT `/api/articles/:id` → invalide `['articles']`, `['article', id]`, `['myArticles']`
+    - `deleteArticle` : DELETE `/api/articles/:id` → invalide `['articles']`, `['myArticles']`, `['favorites']`
 - [ ] Créer `src/hooks/useFavoriteMutations.ts`
-  - `addFavorite` : POST `/api/favorites/:id` → invalide `['favorites']`
-  - `removeFavorite` : DELETE `/api/favorites/:id` → invalide `['favorites']`
+    - `addFavorite` : POST `/api/favorites/:id` → invalide `['favorites']`
+    - `removeFavorite` : DELETE `/api/favorites/:id` → invalide `['favorites']`
 
 ---
 
@@ -122,10 +122,10 @@
 ### 3.1 Brouillon automatique — 1,5 pt
 
 - [ ] Créer `src/hooks/useDraftForm.ts`
-  - Accepte un `useForm` instance (RHF)
-  - `watch()` → `useEffect` → `localStorage.setItem('article-draft', JSON.stringify(values))`
-  - Au montage : `localStorage.getItem('article-draft')` → `reset(savedValues)` si données trouvées
-  - Exposer `clearDraft()` → `localStorage.removeItem('article-draft')`
+    - Accepte un `useForm` instance (RHF)
+    - `watch()` → `useEffect` → `localStorage.setItem('article-draft', JSON.stringify(values))`
+    - Au montage : `localStorage.getItem('article-draft')` → `reset(savedValues)` si données trouvées
+    - Exposer `clearDraft()` → `localStorage.removeItem('article-draft')`
 - [ ] Intégrer dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — clé différente sinon collision)
 - [ ] Appeler `clearDraft()` dans le callback `onSuccess` de `createArticle`
 - [ ] **Tester manuellement** : remplir, quitter, revenir → champs restaurés ; publier, revenir → champs vides
@@ -146,23 +146,23 @@
 - [ ] Installer les dépendances de test si manquantes (déjà dans devDependencies : `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`)
 - [ ] Vérifier `src/test/setup.ts` (import `@testing-library/jest-dom`)
 - [ ] Créer `src/components/ArticleCard.test.tsx`
-  - Test 1 : affiche le titre, le prix formaté ("12,50 €"), le nom du vendeur
-  - Test 2 : bouton favori appelle `onToggleFavorite` au clic
-  - Test 3 : le lien pointe vers `/articles/:id`
+    - Test 1 : affiche le titre, le prix formaté ("12,50 €"), le nom du vendeur
+    - Test 2 : bouton favori appelle `onToggleFavorite` au clic
+    - Test 3 : le lien pointe vers `/articles/:id`
 - [ ] Créer `src/components/ArticleForm.test.tsx`
-  - Test 4 : soumettre un formulaire vide affiche les messages d'erreur
-  - Test 5 : les `defaultValues` pré-remplissent les champs (mode édition)
+    - Test 4 : soumettre un formulaire vide affiche les messages d'erreur
+    - Test 5 : les `defaultValues` pré-remplissent les champs (mode édition)
 - [ ] Créer `src/lib/formatters.test.ts`
-  - Test 6 : `formatPrice(12.5)` retourne `"12,50 €"`
-  - Test 7 : `formatDate("2026-04-15T10:00:00Z")` retourne `"15/04/2026"`
+    - Test 6 : `formatPrice(12.5)` retourne `"12,50 €"`
+    - Test 7 : `formatDate("2026-04-15T10:00:00Z")` retourne `"15/04/2026"`
 - [ ] Vérifier que `pnpm test` passe avec 0 erreur
 
 ### 3.4 Design responsive — 1,5 pt
 
 - [ ] `ArticleGrid.tsx` : `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
 - [ ] `App.tsx` navbar : sur mobile (<640px), empiler les liens verticalement ou ajouter un menu burger
-  - Option simple : `flex-wrap` + icônes sur mobile
-  - Option complète : bouton hamburger + menu déroulant mobile
+    - Option simple : `flex-wrap` + icônes sur mobile
+    - Option complète : bouton hamburger + menu déroulant mobile
 - [ ] `ArticleForm.tsx` : champs en colonne sur mobile (`flex-col`), labels lisibles
 - [ ] `ArticleDetailPage.tsx` : image pleine largeur sur mobile, texte en dessous
 - [ ] **Tester à 375px** dans DevTools : contenu lisible, pas de débordement, navigation utilisable
