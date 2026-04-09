@@ -16,7 +16,7 @@
 
 - [x] Créer `src/components/LoadingSpinner.tsx` — spinner centré affiché pendant le chargement
 - [x] Créer `src/components/ErrorMessage.tsx` — affichage message d'erreur (props: `icon`, `title`, `message`, `content`)
-- [ ] Créer `src/components/ArticleCard.tsx`
+- [X] Créer `src/components/ArticleCard.tsx`
     - Props : `article: Article`, `isFavorite: boolean`, `onToggleFavorite: () => void`
     - Affiche : image (`object-cover`), titre, prix via `formatPrice()`, catégorie, état, vendeur
     - Lien cliquable vers `/articles/:id` (NavLink ou Link)
