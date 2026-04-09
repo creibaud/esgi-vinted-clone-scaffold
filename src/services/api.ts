@@ -1,4 +1,4 @@
-import { getUserId } from "../lib/userId";
+import { getUserId } from "@/lib/userId";
 
 const userName = import.meta.env.VITE_USER_NAME || "Utilisateur anonyme";
 

@@ -6,7 +6,7 @@ import {
     EmptyHeader,
     EmptyMedia,
     EmptyTitle,
-} from "./ui/empty";
+} from "@/components/ui/empty";
 
 interface ErrorMessageProps {
     icon?: IconSvgElement;
