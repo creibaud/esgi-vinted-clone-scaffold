@@ -9,7 +9,7 @@
 
 ### 1.1 Utilitaires partagés
 
-- [ ] Créer `src/lib/formatters.ts` avec `formatPrice(price: number): string` → `"12,50 €"` et `formatDate(dateStr: string): string` → `"15/04/2026"`
+- [X] Créer `src/lib/formatters.ts` avec `formatPrice(price: number): string` → `"12,50 €"` et `formatDate(date: Date | string): string` → `"15/04/2026"`
 - [ ] Créer `src/hooks/useDebouncedValue.ts` — hook générique `useDebouncedValue<T>(value: T, delay: number): T`
 
 ### 1.2 Composants UI partagés
