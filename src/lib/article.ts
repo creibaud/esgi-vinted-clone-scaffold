@@ -1,6 +1,7 @@
 import {
     CATEGORIES,
     CONDITIONS,
+    SIZES,
     type CategoryType,
     type ConditionType,
 } from "@/types/article";
@@ -16,3 +17,15 @@ export function findConditionLabel({
 export function findCategoryLabel({ category }: { category: CategoryType }) {
     return CATEGORIES.find((c) => c.id === category)?.label ?? category;
 }
+
+export const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({
+    value: c.id,
+    label: c.label,
+}));
+
+export const CONDITION_OPTIONS = CONDITIONS.map((c) => ({
+    value: c.value,
+    label: c.label,
+}));
+
+export const SIZE_OPTIONS = SIZES.map((s) => ({ value: s, label: s }));

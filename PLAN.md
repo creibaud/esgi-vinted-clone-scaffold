@@ -16,21 +16,36 @@
 
 - [x] Créer `src/components/LoadingSpinner.tsx` — spinner centré affiché pendant le chargement
 - [x] Créer `src/components/ErrorMessage.tsx` — affichage message d'erreur (props: `icon`, `title`, `message`, `content`)
-- [X] Créer `src/components/ArticleCard.tsx`
+- [x] Créer `src/components/ArticleCard.tsx`
     - Props : `article: Article`, `isFavorite: boolean`, `onToggleFavorite: () => void`
     - Affiche : image (`object-cover`), titre, prix via `formatPrice()`, catégorie, état, vendeur
     - Lien cliquable vers `/articles/:id` (NavLink ou Link)
     - Bouton favori (icône coeur, état actif/inactif selon `isFavorite`)
-- [X] Créer `src/components/ArticleGrid.tsx`
+- [x] Créer `src/components/ArticleGrid.tsx`
     - Props : `articles: Article[]`, `favoriteIds: Set<string>`, `onToggleFavorite: (articleId: string) => void`
     - Grille responsive : 1 col mobile, 2 col md, 3 col lg (Tailwind)
     - Affiche `ArticleCard` pour chaque article
-- [ ] Créer `src/components/ArticleForm.tsx`
-    - Props : `defaultValues?: ArticleFormData`, `onSubmit: (data: ArticleFormData) => Promise<void>`, `isLoading: boolean`
+- [x] Créer `src/lib/article.ts`
+    - Schéma Zod `articleSchema` : tous les champs requis, title 3-100 chars, description 10-1000 chars, price > 0
+    - Exporter `ArticleFormData` inféré via `z.infer<typeof articleSchema>`
+- [x] Créer `src/hooks/form.ts` — factory TanStack Form avec composants pré-câblés
+    - Utiliser `createFormHook` + `createFormHookContexts` de `@tanstack/react-form`
+    - Pré-câbler : `TextField`, `NumberField`, `TextareaField`, `SelectField` (dans `src/components/form/`)
+    - Chaque composant utilise `useFieldContext()` et gère automatiquement `data-invalid` / `aria-invalid`
+    - Exporter `useAppForm`, `withForm`, `useFieldContext`, `useFormContext`
+- [x] Créer `src/components/ArticleForm.tsx`
+    - Props : `defaultValues?: Partial<ArticleFormData>`, `onSubmit: (data: ArticleFormData) => Promise<void>`, `isLoading?: boolean`
     - Champs : `title`, `description`, `price`, `category` (select CATEGORIES), `size`, `condition` (select CONDITIONS), `imageUrl`
-    - Validation React Hook Form : tous requis, title 3-100 chars, description 10-1000 chars, price > 0
-    - Messages d'erreur sous chaque champ invalide
-    - Réutilisé dans PublishPage (vide) ET EditArticlePage (prérempli)
+    - Utilise `useAppForm` avec `validators: { onSubmit: articleFormDataSchema }` pour la validation Zod
+    - Utilise `form.AppField` + composants pré-câblés (`field.TextField`, `field.SelectField`, etc.)
+    - Messages d'erreur sous chaque champ invalide via `<FieldError />` pré-câblé dans chaque composant
+    - Réutilisé dans `ArticleFormDialog` (création) ET `EditArticlePage` (prérempli)
+- [x] Créer `src/components/ArticleFormDialog.tsx`
+    - Wrape `ArticleForm` dans un `Dialog` shadcn
+    - Gère l'état `open/close` en interne — ferme automatiquement après soumission réussie
+    - Props : `onSubmit: (data: ArticleFormData) => Promise<void>`, `isLoading?: boolean`
+    - Bouton trigger "Publier" intégré (remplace le `NavLink /publish` dans `App.tsx`)
+    - À brancher sur `createArticle` quand la Phase 1.3 sera implémentée
 
 ### 1.3 Hooks TanStack Query
 
@@ -122,9 +137,9 @@
 ### 3.1 Brouillon automatique — 1,5 pt
 
 - [ ] Créer `src/hooks/useDraftForm.ts`
-    - Accepte un `useForm` instance (RHF)
-    - `watch()` → `useEffect` → `localStorage.setItem('article-draft', JSON.stringify(values))`
-    - Au montage : `localStorage.getItem('article-draft')` → `reset(savedValues)` si données trouvées
+    - Accepte la `form` instance retournée par `useAppForm`
+    - `form.store.subscribe()` → `localStorage.setItem('article-draft', JSON.stringify(form.state.values))`
+    - Au montage : `localStorage.getItem('article-draft')` → `form.setFieldValue(...)` pour chaque champ si données trouvées
     - Exposer `clearDraft()` → `localStorage.removeItem('article-draft')`
 - [ ] Intégrer dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — clé différente sinon collision)
 - [ ] Appeler `clearDraft()` dans le callback `onSuccess` de `createArticle`
@@ -150,8 +165,10 @@
     - Test 2 : bouton favori appelle `onToggleFavorite` au clic
     - Test 3 : le lien pointe vers `/articles/:id`
 - [ ] Créer `src/components/ArticleForm.test.tsx`
-    - Test 4 : soumettre un formulaire vide affiche les messages d'erreur
+    - Test 4 : soumettre un formulaire vide affiche les messages d'erreur Zod
     - Test 5 : les `defaultValues` pré-remplissent les champs (mode édition)
+- [ ] Créer `src/lib/articleSchema.test.ts`
+    - Test : schéma Zod rejette les données invalides (titre trop court, prix négatif, etc.)
 - [ ] Créer `src/lib/formatters.test.ts`
     - Test 6 : `formatPrice(12.5)` retourne `"12,50 €"`
     - Test 7 : `formatDate("2026-04-15T10:00:00Z")` retourne `"15/04/2026"`
@@ -196,13 +213,14 @@
 
 ## Points de vigilance (décisions architecturales)
 
-| Sujet                       | Décision                                                                   |
-| --------------------------- | -------------------------------------------------------------------------- |
-| Clé de cache catalogue      | `queryKey: ['articles', filters]` — les filtres DANS la clé                |
-| Invalidation après DELETE   | Invalider `['articles']` + `['myArticles']` + `['favorites']`              |
-| État favoris dans catalogue | `useFavorites()` appelé dans CataloguePage + MyArticlesPage                |
-| Formulaire édition          | Render `<ArticleForm />` uniquement si `isSuccess === true`                |
-| Draft localStorage          | PublishPage uniquement, clé `'article-draft'`, jamais dans EditArticlePage |
-| Debounce recherche          | `useDebouncedValue(search, 300)` avant de passer aux filtres               |
-| Formatage                   | Toujours via `formatPrice()` et `formatDate()` de `src/lib/formatters.ts`  |
-| Filtres URL                 | `useSearchParams()` — back button restaure les filtres                     |
+| Sujet                       | Décision                                                                         |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| Clé de cache catalogue      | `queryKey: ['articles', filters]` — les filtres DANS la clé                      |
+| Invalidation après DELETE   | Invalider `['articles']` + `['myArticles']` + `['favorites']`                    |
+| État favoris dans catalogue | `useFavorites()` appelé dans CataloguePage + MyArticlesPage                      |
+| Formulaire                  | `useAppForm` (factory `createFormHook`) + Zod — schéma dans `src/lib/article.ts` |
+| Formulaire édition          | Render `<ArticleForm />` uniquement si `isSuccess === true`                      |
+| Draft localStorage          | PublishPage uniquement, clé `'article-draft'`, jamais dans EditArticlePage       |
+| Debounce recherche          | `useDebouncedValue(search, 300)` avant de passer aux filtres                     |
+| Formatage                   | Toujours via `formatPrice()` et `formatDate()` de `src/lib/formatters.ts`        |
+| Filtres URL                 | `useSearchParams()` — back button restaure les filtres                           |
