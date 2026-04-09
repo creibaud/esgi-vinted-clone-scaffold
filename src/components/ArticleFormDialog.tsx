@@ -30,9 +30,7 @@ export function ArticleFormDialog({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="rounded-full bg-white px-4 py-1.5 font-semibold text-teal-700 hover:bg-teal-50">
-                    Publier
-                </Button>
+                <Button>Publier</Button>
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
                 <DialogHeader>
