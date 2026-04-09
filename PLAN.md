@@ -21,8 +21,8 @@
     - Affiche : image (`object-cover`), titre, prix via `formatPrice()`, catégorie, état, vendeur
     - Lien cliquable vers `/articles/:id` (NavLink ou Link)
     - Bouton favori (icône coeur, état actif/inactif selon `isFavorite`)
-- [ ] Créer `src/components/ArticleGrid.tsx`
-    - Props : `articles: Article[]`, `favoriteIds: Set<string>`, `onToggleFavorite: (id: string) => void`
+- [X] Créer `src/components/ArticleGrid.tsx`
+    - Props : `articles: Article[]`, `favoriteIds: Set<string>`, `onToggleFavorite: (articleId: string) => void`
     - Grille responsive : 1 col mobile, 2 col md, 3 col lg (Tailwind)
     - Affiche `ArticleCard` pour chaque article
 - [ ] Créer `src/components/ArticleForm.tsx`
