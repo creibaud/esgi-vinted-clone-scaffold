@@ -12,9 +12,9 @@ export default function App() {
     const { pathname } = useLocation();
 
     return (
-        <div className="bg-background min-h-screen">
-            <header className="border-b px-4 py-2">
-                <div className="container mx-auto flex items-center justify-between">
+        <div className="bg-background flex h-screen flex-col overflow-hidden">
+            <header className="bg-background fixed inset-x-0 top-0 z-50 h-14 border-b px-4">
+                <div className="container mx-auto flex h-full items-center justify-between">
                     <NavLink to="/" className="text-xl font-bold">
                         Vinted Clone
                     </NavLink>
@@ -58,8 +58,10 @@ export default function App() {
                     />
                 </div>
             </header>
-            <main className="mx-auto max-w-4xl p-6">
-                <Outlet />
+            <main className="mt-14 flex flex-1 flex-col overflow-hidden">
+                <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col overflow-hidden py-6">
+                    <Outlet />
+                </div>
             </main>
         </div>
     );

@@ -9,7 +9,27 @@ export const CATEGORIES = [
     { id: "sportswear", label: "Sportswear" },
 ] as const;
 
-export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
+export const SIZES = [
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "Unique",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42",
+    "43",
+    "44",
+    "45",
+    "46",
+] as const;
 
 export type Size = (typeof SIZES)[number];
 

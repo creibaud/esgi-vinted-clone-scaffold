@@ -3,6 +3,7 @@ import { FavouriteIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { findCategoryLabel, findConditionLabel } from "@/lib/article";
 import { formatDate, formatPrice } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import type { Article } from "@/types/article";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -41,7 +42,7 @@ export function ArticleCard({
                     className="h-60 w-full object-cover"
                 />
                 <Toggle
-                    className="bg-background/60 absolute top-2 right-2 h-9 w-9 rounded-full shadow-md backdrop-blur-sm"
+                    className="bg-background/70 absolute top-2 right-2 h-9 w-9 rounded-full shadow-md backdrop-blur-sm"
                     pressed={isFavorite}
                     onPressedChange={onToggleFavorite}
                     variant="outline"
@@ -53,7 +54,12 @@ export function ArticleCard({
                 >
                     <HugeiconsIcon
                         icon={FavouriteIcon}
-                        className="text-foreground size-4 fill-transparent transition group-data-[state=on]/toggle:fill-red-500 group-data-[state=on]/toggle:text-red-500"
+                        className={cn(
+                            "size-4 transition",
+                            isFavorite
+                                ? "fill-red-500 text-red-500"
+                                : "text-foreground fill-transparent",
+                        )}
                     />
                 </Toggle>
                 <div className="absolute bottom-2 left-2 flex gap-1.5">

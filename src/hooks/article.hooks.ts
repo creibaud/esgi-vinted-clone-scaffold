@@ -50,12 +50,14 @@ export function useFavoriteArticles() {
     });
 }
 
+// Server generates id, createdAt, userId, userName — no optimistic update possible
 export function useCreateArticle() {
     return useMutation({
+        mutationKey: ["createArticle"],
         mutationFn: async (data: ArticleFormData) => {
             return await api.post<Article>("/articles", data);
         },
-        onSuccess: () => {
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["articles"] });
             queryClient.invalidateQueries({ queryKey: ["myArticles"] });
         },
@@ -64,10 +66,56 @@ export function useCreateArticle() {
 
 export function useUpdateArticle(articleId: string) {
     return useMutation({
+        mutationKey: ["updateArticle", articleId],
         mutationFn: async (data: ArticleFormData) => {
             return await api.put<Article>(`/articles/${articleId}`, data);
         },
-        onSuccess: () => {
+        onMutate: async (data) => {
+            await queryClient.cancelQueries({ queryKey: ["articles"] });
+            await queryClient.cancelQueries({ queryKey: ["myArticles"] });
+            await queryClient.cancelQueries({
+                queryKey: ["article", articleId],
+            });
+
+            const previousArticle = queryClient.getQueryData<Article>([
+                "article",
+                articleId,
+            ]);
+            const previousMyArticles = queryClient.getQueryData<Article[]>([
+                "myArticles",
+            ]);
+
+            const applyUpdate = (article: Article) =>
+                article.id === articleId ? { ...article, ...data } : article;
+
+            queryClient.setQueryData<Article>(["article", articleId], (old) =>
+                old ? { ...old, ...data } : old,
+            );
+            queryClient.setQueryData<Article[]>(["myArticles"], (old) =>
+                old?.map(applyUpdate),
+            );
+            queryClient.setQueriesData<Article[]>(
+                { queryKey: ["articles"] },
+                (old) => old?.map(applyUpdate),
+            );
+
+            return { previousArticle, previousMyArticles };
+        },
+        onError: (_err, _data, context) => {
+            if (context?.previousArticle) {
+                queryClient.setQueryData(
+                    ["article", articleId],
+                    context.previousArticle,
+                );
+            }
+            if (context?.previousMyArticles) {
+                queryClient.setQueryData(
+                    ["myArticles"],
+                    context.previousMyArticles,
+                );
+            }
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["articles"] });
             queryClient.invalidateQueries({ queryKey: ["myArticles"] });
             queryClient.invalidateQueries({ queryKey: ["article", articleId] });
@@ -75,12 +123,112 @@ export function useUpdateArticle(articleId: string) {
     });
 }
 
+type FavoritesCache = { favorites: Article[]; favoriteIds: Set<string> };
+
+export function useToggleFavorite() {
+    return useMutation({
+        mutationKey: ["toggleFavorite"],
+        mutationFn: async ({
+            articleId,
+            isFavorite,
+        }: {
+            articleId: string;
+            isFavorite: boolean;
+        }) => {
+            if (isFavorite) {
+                return await api.delete(`/favorites/${articleId}`);
+            }
+            return await api.post(`/favorites/${articleId}`, {});
+        },
+        onMutate: async ({ articleId, isFavorite }) => {
+            await queryClient.cancelQueries({ queryKey: ["favorites"] });
+
+            const previous = queryClient.getQueryData<FavoritesCache>([
+                "favorites",
+            ]);
+
+            queryClient.setQueryData<FavoritesCache>(["favorites"], (old) => {
+                if (!old) return old;
+                const favoriteIds = new Set(old.favoriteIds);
+                const favorites = isFavorite
+                    ? old.favorites.filter((a) => a.id !== articleId)
+                    : old.favorites;
+
+                if (isFavorite) {
+                    favoriteIds.delete(articleId);
+                } else {
+                    favoriteIds.add(articleId);
+                }
+
+                return { favorites, favoriteIds };
+            });
+
+            return { previous };
+        },
+        onError: (_err, _vars, context) => {
+            if (context?.previous) {
+                queryClient.setQueryData(["favorites"], context.previous);
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["favorites"] });
+        },
+    });
+}
+
 export function useDeleteArticle(articleId: string) {
     return useMutation({
+        mutationKey: ["deleteArticle", articleId],
         mutationFn: async () => {
             return await api.delete(`/articles/${articleId}`);
         },
-        onSuccess: () => {
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["articles"] });
+            await queryClient.cancelQueries({ queryKey: ["myArticles"] });
+            await queryClient.cancelQueries({ queryKey: ["favorites"] });
+
+            const previousMyArticles = queryClient.getQueryData<Article[]>([
+                "myArticles",
+            ]);
+            const previousFavorites = queryClient.getQueryData<FavoritesCache>([
+                "favorites",
+            ]);
+
+            const removeArticle = (articles: Article[] | undefined) =>
+                articles?.filter((a) => a.id !== articleId);
+
+            queryClient.setQueriesData<Article[]>(
+                { queryKey: ["articles"] },
+                removeArticle,
+            );
+            queryClient.setQueryData<Article[]>(["myArticles"], removeArticle);
+            queryClient.setQueryData<FavoritesCache>(["favorites"], (old) => {
+                if (!old) return old;
+                const favoriteIds = new Set(old.favoriteIds);
+                favoriteIds.delete(articleId);
+                return {
+                    favorites: old.favorites.filter((a) => a.id !== articleId),
+                    favoriteIds,
+                };
+            });
+
+            return { previousMyArticles, previousFavorites };
+        },
+        onError: (_err, _vars, context) => {
+            if (context?.previousMyArticles) {
+                queryClient.setQueryData(
+                    ["myArticles"],
+                    context.previousMyArticles,
+                );
+            }
+            if (context?.previousFavorites) {
+                queryClient.setQueryData(
+                    ["favorites"],
+                    context.previousFavorites,
+                );
+            }
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["articles"] });
             queryClient.invalidateQueries({ queryKey: ["myArticles"] });
             queryClient.invalidateQueries({ queryKey: ["favorites"] });

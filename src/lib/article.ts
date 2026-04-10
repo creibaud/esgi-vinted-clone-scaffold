@@ -29,3 +29,9 @@ export const CONDITION_OPTIONS = CONDITIONS.map((c) => ({
 }));
 
 export const SIZE_OPTIONS = SIZES.map((s) => ({ value: s, label: s }));
+
+export const SORT_OPTIONS = [
+    { value: "date_desc", label: "Plus récents" },
+    { value: "price_asc", label: "Prix croissant" },
+    { value: "price_desc", label: "Prix décroissant" },
+] as const;
