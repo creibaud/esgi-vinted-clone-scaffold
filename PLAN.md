@@ -131,10 +131,10 @@
 
 ### 2.6 Navigation cohérente — 0,5 pt
 
-- [ ] Vérifier que tous les liens NavLink de `App.tsx` fonctionnent
+- [x] NavLinks `App.tsx` : Accueil, Mes annonces, Favoris, bouton "Publier" (`ArticleFormDialog`)
+- [ ] Brancher `ArticleFormDialog.onSubmit` sur `useCreateArticle` (actuellement `console.log`)
 - [ ] Lien "← Retour au catalogue" dans ArticleDetailPage
 - [ ] Pas de liens cassés dans toute l'application
-- [ ] Nettoyer le contenu placeholder dans `App.tsx`
 
 ---
 
@@ -227,7 +227,7 @@
 | Skeleton loading          | `ArticleCardSkeleton` × 6 à la place de `LoadingSpinner` — évite le saut de layout                   |
 | ScrollArea catalogue      | `flex-1 min-h-0` — s'adapte dynamiquement à la hauteur du collapsible                                |
 | 204 No Content            | `api.ts` vérifie le status avant `response.json()`                                                   |
-| Filtres catalogue         | State local + debounce 300ms — pas encore dans l'URL (`useSearchParams` à faire)                     |
+| Filtres catalogue         | State local + debounce 300ms + `useSearchParams` sync dans `useCatalogueFilters.ts`                  |
 | Slider prix               | `[0, 500]` par défaut, actif uniquement si modifié (`isPriceRangeActive`)                            |
 | Invalidation après DELETE | Invalider `['articles']` + `['myArticles']` + `['favorites']`                                        |
 | Formulaire                | `useAppForm` (factory `createFormHook`) + Zod — schéma dans `src/lib/article.ts`                     |
