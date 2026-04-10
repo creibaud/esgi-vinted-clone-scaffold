@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCurrentUserId } from "@/hooks/useCurrentUserId";
 import { queryClient } from "@/lib/tanstack-query";
