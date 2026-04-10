@@ -13,7 +13,7 @@ export function ArticleGrid({
     onToggleFavorite,
 }: ArticleGridProps) {
     return (
-        <div className="grid w-full auto-rows-fr grid-cols-1 gap-4 p-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid w-full auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
                 <ArticleCard
                     key={article.id}
