@@ -89,14 +89,12 @@ export const articleSchema = z.object({
 });
 
 export type Article = z.infer<typeof articleSchema>;
-export const articleFormDataSchema = articleSchema
-    .omit({
-        id: true,
-        userId: true,
-        userName: true,
-        createdAt: true,
-    })
-    .partial();
+export const articleFormDataSchema = articleSchema.omit({
+    id: true,
+    userId: true,
+    userName: true,
+    createdAt: true,
+});
 export type ArticleFormData = z.infer<typeof articleFormDataSchema>;
 
 export type SortOptions = "price_asc" | "price_desc" | "date_desc";
