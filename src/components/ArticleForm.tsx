@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { useAppForm } from "@/hooks/form.hooks";
@@ -8,16 +9,25 @@ import {
 } from "@/lib/article";
 import { articleFormDataSchema, type ArticleFormData } from "@/types/article";
 
+interface ArticleFormActions {
+    reset: () => void;
+    isLoading: boolean;
+}
+
 interface ArticleFormProps {
+    id?: string;
     defaultValues?: Partial<ArticleFormData>;
     onSubmit: (data: ArticleFormData) => Promise<void>;
     isLoading?: boolean;
+    renderActions?: (actions: ArticleFormActions) => ReactNode;
 }
 
 export function ArticleForm({
+    id,
     defaultValues,
     onSubmit,
     isLoading = false,
+    renderActions,
 }: ArticleFormProps) {
     const form = useAppForm({
         defaultValues: {
@@ -30,15 +40,32 @@ export function ArticleForm({
             imageUrl: defaultValues?.imageUrl ?? "",
         },
         validators: {
-            onSubmit: articleFormDataSchema.parse,
+            onSubmit: articleFormDataSchema,
         },
         onSubmit: async ({ value }) => {
             await onSubmit(value as ArticleFormData);
         },
     });
 
+    const defaultActions = (
+        <div className="mt-6 flex justify-end gap-3">
+            <Button
+                type="button"
+                variant="outline"
+                onClick={() => form.reset()}
+                disabled={isLoading}
+            >
+                Réinitialiser
+            </Button>
+            <Button type="submit" form={id} disabled={isLoading}>
+                {isLoading ? "Envoi…" : "Publier"}
+            </Button>
+        </div>
+    );
+
     return (
         <form
+            id={id}
             onSubmit={(e) => {
                 e.preventDefault();
                 form.handleSubmit();
@@ -119,20 +146,9 @@ export function ArticleForm({
                     )}
                 />
             </FieldGroup>
-
-            <div className="mt-6 flex justify-end gap-3">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => form.reset()}
-                    disabled={isLoading}
-                >
-                    Réinitialiser
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Envoi…" : "Publier"}
-                </Button>
-            </div>
+            {renderActions
+                ? renderActions({ reset: form.reset, isLoading })
+                : defaultActions}
         </form>
     );
 }

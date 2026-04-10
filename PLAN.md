@@ -49,23 +49,23 @@
 
 ### 1.3 Hooks TanStack Query
 
-- [X] Créer `src/hooks/article.hooks.ts`
+- [x] Créer `src/hooks/article.hooks.ts`
     - `useQuery({ queryKey: ['articles', filters], queryFn: () => api.get('/articles?' + params) })`
     - Accepte un objet `filters` (search, category, condition, priceMin, priceMax, sort)
     - Construit les query params en excluant les valeurs vides
-- [X] Créer `src/hooks/article.hooks.ts`
+- [x] Créer `src/hooks/article.hooks.ts`
     - `useQuery({ queryKey: ['article', id], queryFn: () => api.get('/articles/' + id) })`
-- [X] Créer `src/hooks/article.hooks.ts`
+- [x] Créer `src/hooks/article.hooks.ts`
     - `useQuery({ queryKey: ['myArticles'], queryFn: () => api.get('/users/' + userId + '/articles') })`
     - Utilise `useCurrentUserId()` pour le userId
-- [X] Créer `src/hooks/article.hooks.ts`
+- [x] Créer `src/hooks/article.hooks.ts`
     - `useQuery({ queryKey: ['favorites'], queryFn: () => api.get('/favorites') })`
     - Retourne aussi `favoriteIds: Set<string>` calculé depuis la liste
-- [X] Créer `src/hooks/article.hooks.ts`
+- [x] Créer `src/hooks/article.hooks.ts`
     - `createArticle` : POST `/articles` → invalide `['articles']`, `['myArticles']` → redirect vers `/articles/:id`
     - `updateArticle` : PUT `/articles/:id` → invalide `['articles']`, `['article', id]`, `['myArticles']`
     - `deleteArticle` : DELETE `/articles/:id` → invalide `['articles']`, `['myArticles']`, `['favorites']`
-- [X] Créer `src/hooks/article.hooks.ts`
+- [x] Créer `src/hooks/article.hooks.ts`
     - `addFavorite` : POST `/favorites/:id` → invalide `['favorites']`
     - `removeFavorite` : DELETE `/favorites/:id` → invalide `['favorites']`
 

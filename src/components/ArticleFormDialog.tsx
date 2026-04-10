@@ -5,6 +5,7 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -32,14 +33,38 @@ export function ArticleFormDialog({
             <DialogTrigger asChild>
                 <Button>Publier</Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Publier une annonce</DialogTitle>
                     <DialogDescription>
                         Remplissez les informations de votre article.
                     </DialogDescription>
                 </DialogHeader>
-                <ArticleForm onSubmit={handleSubmit} isLoading={isLoading} />
+                <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4 pb-1">
+                    <ArticleForm
+                        id="article-form"
+                        onSubmit={handleSubmit}
+                        isLoading={isLoading}
+                        renderActions={() => null}
+                    />
+                </div>
+                <DialogFooter>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setOpen(false)}
+                        disabled={isLoading}
+                    >
+                        Annuler
+                    </Button>
+                    <Button
+                        type="submit"
+                        form="article-form"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Envoi…" : "Publier"}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
