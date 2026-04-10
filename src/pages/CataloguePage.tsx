@@ -183,7 +183,7 @@ export default function CataloguePage() {
                 </CollapsibleContent>
             </Collapsible>
 
-            <ScrollArea className="min-h-0 flex-1 px-4">
+            <ScrollArea className="min-h-0 flex-1 px-3">
                 {isLoading && (
                     <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }, (_, i) => (
