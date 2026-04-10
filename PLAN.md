@@ -96,38 +96,38 @@
 
 - [ ] Remplacer le stub `src/pages/ArticleDetailPage.tsx`
 - [ ] Récupérer `:id` via `useParams()`
-- [ ] Appeler `useArticle(id)`
+- [ ] Appeler `useArticle(id)` (TanStack Query)
 - [ ] Afficher : image grande, titre, prix `formatPrice()`, description complète, catégorie, état, taille, vendeur, date `formatDate()`
 - [ ] Lien "← Retour au catalogue" vers `/`
-- [ ] `<LoadingSpinner />` pendant chargement
-- [ ] Message d'erreur si 404 ou erreur API
+- [ ] `<LoadingSpinner />` pendant `isLoading`
+- [ ] `<ErrorMessage />` si `isError` (404 ou erreur API)
 
 ### 2.3 PublishPage — 2 pts
 
 - [ ] Remplacer le stub `src/pages/PublishPage.tsx`
 - [ ] Utiliser `<ArticleForm />` sans `defaultValues` (mode création)
-- [ ] Appeler `createArticle` de `useArticleMutations` dans `onSubmit`
-- [ ] Après création réussie : redirect vers `/articles/:newId`
-- [ ] Afficher les erreurs API sous le formulaire
+- [ ] Appeler `useCreateArticle()` (TanStack Query mutation) dans `onSubmit`
+- [ ] Après création réussie (`onSuccess`) : redirect vers `/articles/:newId` via `useNavigate`
+- [ ] Afficher `<ErrorMessage />` sous le formulaire si la mutation échoue (`isError`)
 - [ ] **Feature optionnelle draft (voir Phase 3.1)** : intégrer `useDraftForm` ici
 
 ### 2.4 MyArticlesPage — 1,5 pt
 
 - [ ] Remplacer le stub `src/pages/MyArticlesPage.tsx`
-- [ ] Appeler `useMyArticles()` (articles de l'utilisateur courant uniquement)
-- [ ] Si liste vide : message + lien vers `/publish`
-- [ ] Bouton "Supprimer" sur chaque article → `window.confirm("Supprimer cet article ?")` → appeler `deleteArticle`
-- [ ] Bouton "Modifier" sur chaque article → navigate vers `/articles/:id/edit` (feature optionnelle 7.2)
-- [ ] `<LoadingSpinner />` et `<ErrorMessage />` selon l'état
-- [ ] La liste se met à jour automatiquement après suppression (optimistic update)
+- [ ] Appeler `useMyArticles()` (TanStack Query — articles de l'utilisateur courant uniquement)
+- [ ] Si liste vide : message + lien vers `/`
+- [ ] Bouton "Supprimer" sur chaque article → `AlertDialog` shadcn (confirmation) → `useDeleteArticle()` → optimistic update immédiat
+- [ ] Bouton "Modifier" sur chaque article → `useNavigate` vers `/articles/:id/edit` (feature optionnelle 3.2)
+- [ ] `<LoadingSpinner />` pendant `isLoading`, `<ErrorMessage />` si `isError`
+- [ ] La liste se met à jour automatiquement après suppression (optimistic update TanStack Query)
 
 ### 2.5 FavoritesPage — 2 pts
 
 - [ ] Remplacer le stub `src/pages/FavoritesPage.tsx`
-- [ ] Appeler `useFavoriteArticles()`
-- [ ] Si liste vide : message explicatif
-- [ ] Bouton "Retirer" sur chaque favori → `useToggleFavorite` → optimistic update immédiat
-- [ ] `<LoadingSpinner />` et `<ErrorMessage />`
+- [ ] Appeler `useFavoriteArticles()` (TanStack Query)
+- [ ] Si liste vide : message explicatif (composant `Empty` shadcn)
+- [ ] Bouton "Retirer" sur chaque favori → `useToggleFavorite()` → optimistic update immédiat (TanStack Query)
+- [ ] `<LoadingSpinner />` pendant `isLoading`, `<ErrorMessage />` si `isError`
 
 ### 2.6 Navigation cohérente — 0,5 pt
 
@@ -143,24 +143,24 @@
 ### 3.1 Brouillon automatique — 1,5 pt
 
 - [ ] Créer `src/hooks/useDraftForm.ts`
-    - Accepte la `form` instance retournée par `useAppForm`
-    - `form.store.subscribe()` → `localStorage.setItem('article-draft', JSON.stringify(form.state.values))`
-    - Au montage : `localStorage.getItem('article-draft')` → `form.setFieldValue(...)` pour chaque champ si données trouvées
+    - Accepte la `form` instance retournée par `useAppForm` (TanStack Form)
+    - `useEffect` + `form.useStore(s => s.values)` → `localStorage.setItem('article-draft', JSON.stringify(values))`
+    - Au montage : `localStorage.getItem('article-draft')` → `form.setFieldValue(field, value)` pour chaque champ si données trouvées
     - Exposer `clearDraft()` → `localStorage.removeItem('article-draft')`
-- [ ] Intégrer dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — clé différente sinon collision)
-- [ ] Appeler `clearDraft()` dans le callback `onSuccess` de `createArticle`
+- [ ] Intégrer dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — sinon collision de clé)
+- [ ] Appeler `clearDraft()` dans le callback `onSuccess` de `useCreateArticle()`
 - [ ] **Tester manuellement** : remplir, quitter, revenir → champs restaurés ; publier, revenir → champs vides
 
 ### 3.2 Édition d'annonce — 1,5 pt
 
 - [ ] Remplacer le stub `src/pages/EditArticlePage.tsx`
 - [ ] Récupérer `:id` via `useParams()`
-- [ ] Appeler `useArticle(id)`
-- [ ] Vérifier `article.userId === currentUserId` → si non : afficher erreur "Vous n'êtes pas le propriétaire"
-- [ ] **Render conditionnel** : `if (!article) return <LoadingSpinner />` — monter `<ArticleForm />` UNIQUEMENT quand `isSuccess` est true (sinon TanStack Form s'initialise avec les `defaultValues` vides avant que les données soient disponibles)
+- [ ] Appeler `useArticle(id)` (TanStack Query)
+- [ ] Vérifier `article.userId === currentUserId` → si non : `<ErrorMessage />` "Vous n'êtes pas le propriétaire"
+- [ ] **Render conditionnel** : `if (!isSuccess) return <LoadingSpinner />` — monter `<ArticleForm />` UNIQUEMENT quand `isSuccess` est true (sinon TanStack Form s'initialise avec les `defaultValues` vides avant que les données soient disponibles)
 - [ ] Passer `defaultValues={article}` à `<ArticleForm />`
-- [ ] Dans `onSubmit` : appeler `updateArticle` → optimistic update immédiat → redirect vers `/articles/:id`
-- [ ] Bouton "Modifier" dans `MyArticlesPage` → navigate vers `/articles/:id/edit`
+- [ ] Dans `onSubmit` : appeler `useUpdateArticle(id)` → optimistic update TanStack Query → redirect vers `/articles/:id` via `useNavigate`
+- [ ] Bouton "Modifier" dans `MyArticlesPage` → `useNavigate` vers `/articles/:id/edit`
 
 ### 3.3 Tests composants — 1,5 pt
 
@@ -170,8 +170,8 @@
     - Test 1 : affiche le titre, le prix formaté ("12,50 €"), le nom du vendeur
     - Test 2 : bouton favori appelle `onToggleFavorite` au clic
     - Test 3 : le lien pointe vers `/articles/:id`
-- [ ] Créer `src/components/ArticleForm.test.tsx`
-    - Test 4 : soumettre un formulaire vide affiche les messages d'erreur Zod
+- [ ] Créer `src/components/ArticleForm.test.tsx` (TanStack Form + Zod)
+    - Test 4 : soumettre un formulaire vide affiche les messages d'erreur Zod (validation `onSubmit`)
     - Test 5 : les `defaultValues` pré-remplissent les champs (mode édition)
 - [ ] Créer `src/lib/articleSchema.test.ts`
     - Test : schéma Zod rejette les données invalides (titre trop court, prix négatif, etc.)
