@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FavouriteIcon } from "@hugeicons/core-free-icons";
+import { FavouriteIcon, Image01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { findCategoryLabel, findConditionLabel } from "@/lib/article";
 import { formatDate, formatPrice } from "@/lib/formatters";
@@ -29,6 +30,7 @@ export function ArticleCard({
     onToggleFavorite,
 }: ArticleCardProps) {
     const navigate = useNavigate();
+    const [imageError, setImageError] = useState(false);
 
     const categoryLabel = findCategoryLabel({ category: article.category });
     const conditionLabel = findConditionLabel({ condition: article.condition });
@@ -43,11 +45,18 @@ export function ArticleCard({
             onClick={onViewDetail}
         >
             <div className="relative overflow-hidden">
-                <img
-                    src={article.imageUrl}
-                    alt={article.title}
-                    className="h-60 w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
-                />
+                {imageError ? (
+                    <div className="bg-muted text-muted-foreground flex h-60 w-full items-center justify-center transition-transform duration-500 ease-out group-hover:scale-105">
+                        <HugeiconsIcon icon={Image01Icon} className="size-12" />
+                    </div>
+                ) : (
+                    <img
+                        src={article.imageUrl}
+                        alt={article.title}
+                        className="h-60 w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
+                        onError={() => setImageError(true)}
+                    />
+                )}
                 <Toggle
                     className="bg-background/70 absolute top-2 right-2 h-9 w-9 rounded-full shadow-md backdrop-blur-sm"
                     pressed={isFavorite}
