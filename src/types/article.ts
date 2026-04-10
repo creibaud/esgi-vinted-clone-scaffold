@@ -78,3 +78,14 @@ export const articleFormDataSchema = articleSchema
     })
     .partial();
 export type ArticleFormData = z.infer<typeof articleFormDataSchema>;
+
+export type SortOptions = "price_asc" | "price_desc" | "date_desc";
+
+export type ArticleFilters = {
+    search?: string;
+    category?: CategoryType;
+    condition?: ConditionType;
+    priceMin?: number;
+    priceMax?: number;
+    sort?: SortOptions;
+};

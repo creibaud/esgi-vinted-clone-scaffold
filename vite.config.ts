@@ -2,12 +2,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
+import { devtools } from "@tanstack/devtools-vite";
 import react from "@vitejs/plugin-react";
 
 const currentDir = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
-    plugins: [react(), tailwindcss()],
+    plugins: [devtools(), react(), tailwindcss()],
     resolve: {
         alias: {
             "@": path.resolve(currentDir, "./src"),

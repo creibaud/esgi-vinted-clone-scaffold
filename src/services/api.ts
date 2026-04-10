@@ -3,13 +3,14 @@ import { getUserId } from "@/lib/userId";
 const userName = import.meta.env.VITE_USER_NAME || "Utilisateur anonyme";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const url = `/api${path}`;
     const headers: Record<string, string> = {
         "Content-Type": "application/json",
         "x-user-id": getUserId(),
         ...(options.headers as Record<string, string>),
     };
 
-    const response = await fetch(path, { ...options, headers });
+    const response = await fetch(url, { ...options, headers });
 
     if (!response.ok) {
         const error = await response.json().catch(() => ({}));
