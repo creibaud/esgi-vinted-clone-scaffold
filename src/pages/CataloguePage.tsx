@@ -48,11 +48,16 @@ export default function CataloguePage() {
     const [filtersOpen, setFiltersOpen] = useState(false);
 
     const {
-        search, setSearch,
-        priceRange, setPriceRange,
-        category, setCategory,
-        condition, setCondition,
-        sort, setSort,
+        search,
+        setSearch,
+        priceRange,
+        setPriceRange,
+        category,
+        setCategory,
+        condition,
+        setCondition,
+        sort,
+        setSort,
         hasActiveFilters,
         clearFilters,
         articleFilters,
@@ -103,7 +108,11 @@ export default function CataloguePage() {
                         <CollapsibleTrigger asChild>
                             <Button variant="outline" size="icon">
                                 <HugeiconsIcon
-                                    icon={filtersOpen ? FilterRemoveIcon : FilterAddIcon}
+                                    icon={
+                                        filtersOpen
+                                            ? FilterRemoveIcon
+                                            : FilterAddIcon
+                                    }
                                 />
                             </Button>
                         </CollapsibleTrigger>
@@ -161,7 +170,9 @@ export default function CataloguePage() {
                                 max={PRICE_MAX}
                                 step={5}
                                 value={priceRange}
-                                onValueChange={(v) => setPriceRange(v as [number, number])}
+                                onValueChange={(v) =>
+                                    setPriceRange(v as [number, number])
+                                }
                             />
                             <div className="text-muted-foreground flex justify-between text-xs">
                                 <span>{formatPrice(0)}</span>

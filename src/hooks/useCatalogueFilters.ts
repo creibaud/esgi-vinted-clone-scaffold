@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
     CATEGORY_OPTIONS,
     CONDITION_OPTIONS,
     SORT_OPTIONS,
 } from "@/lib/article";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import type { ArticleFilters, CategoryType, ConditionType, SortOptions } from "@/types/article";
+import type {
+    ArticleFilters,
+    CategoryType,
+    ConditionType,
+    SortOptions,
+} from "@/types/article";
 
 type CategoryOption = (typeof CATEGORY_OPTIONS)[number];
 type ConditionOption = (typeof CONDITION_OPTIONS)[number];
@@ -45,21 +50,30 @@ export interface CatalogueFilters {
 export function useCatalogueFilters(): CatalogueFilters {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
+    const [search, setSearch] = useState(
+        () => searchParams.get("search") ?? "",
+    );
     const [priceRange, setPriceRange] = useState<[number, number]>(() => [
         Number(searchParams.get("priceMin")) || 0,
         Number(searchParams.get("priceMax")) || PRICE_MAX,
     ]);
 
     const category =
-        CATEGORY_OPTIONS.find((o) => o.value === searchParams.get("category")) ?? null;
+        CATEGORY_OPTIONS.find(
+            (o) => o.value === searchParams.get("category"),
+        ) ?? null;
     const condition =
-        CONDITION_OPTIONS.find((o) => o.value === searchParams.get("condition")) ?? null;
+        CONDITION_OPTIONS.find(
+            (o) => o.value === searchParams.get("condition"),
+        ) ?? null;
     const sort =
         SORT_OPTIONS.find((o) => o.value === searchParams.get("sort")) ?? null;
 
     const debouncedSearch = useDebouncedValue({ value: search, delay: 300 });
-    const debouncedPriceRange = useDebouncedValue({ value: priceRange, delay: 300 });
+    const debouncedPriceRange = useDebouncedValue({
+        value: priceRange,
+        delay: 300,
+    });
 
     useEffect(() => {
         setSearchParams(
@@ -69,19 +83,26 @@ export function useCatalogueFilters(): CatalogueFilters {
     }, [debouncedSearch, setSearchParams]);
 
     useEffect(() => {
-        setSearchParams((prev) => {
-            let next = updateParam(
-                prev,
-                "priceMin",
-                debouncedPriceRange[0] !== 0 ? String(debouncedPriceRange[0]) : null,
-            );
-            next = updateParam(
-                next,
-                "priceMax",
-                debouncedPriceRange[1] !== PRICE_MAX ? String(debouncedPriceRange[1]) : null,
-            );
-            return next;
-        }, { replace: true });
+        setSearchParams(
+            (prev) => {
+                let next = updateParam(
+                    prev,
+                    "priceMin",
+                    debouncedPriceRange[0] !== 0
+                        ? String(debouncedPriceRange[0])
+                        : null,
+                );
+                next = updateParam(
+                    next,
+                    "priceMax",
+                    debouncedPriceRange[1] !== PRICE_MAX
+                        ? String(debouncedPriceRange[1])
+                        : null,
+                );
+                return next;
+            },
+            { replace: true },
+        );
     }, [debouncedPriceRange, setSearchParams]);
 
     function setCategory(value: CategoryOption | null) {
@@ -124,8 +145,12 @@ export function useCatalogueFilters(): CatalogueFilters {
         ...(category && { category: category.value as CategoryType }),
         ...(condition && { condition: condition.value as ConditionType }),
         ...(sort && { sort: sort.value as SortOptions }),
-        ...(debouncedPriceRange[0] !== 0 && { priceMin: debouncedPriceRange[0] }),
-        ...(debouncedPriceRange[1] !== PRICE_MAX && { priceMax: debouncedPriceRange[1] }),
+        ...(debouncedPriceRange[0] !== 0 && {
+            priceMin: debouncedPriceRange[0],
+        }),
+        ...(debouncedPriceRange[1] !== PRICE_MAX && {
+            priceMax: debouncedPriceRange[1],
+        }),
     };
 
     return {

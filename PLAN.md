@@ -219,18 +219,18 @@
 
 ## Points de vigilance (décisions architecturales)
 
-| Sujet | Décision |
-| --- | --- |
-| Clé de cache catalogue | `queryKey: ['articles', filters]` — les filtres DANS la clé |
-| Optimistic updates | `onMutate` (snapshot + update) → `onError` (rollback) → `onSettled` (resync) |
-| Favoris icône | Classes conditionnelles `cn()` sur `isFavorite`, pas de sélecteur CSS group (incompatible HugeIcons) |
-| Skeleton loading | `ArticleCardSkeleton` × 6 à la place de `LoadingSpinner` — évite le saut de layout |
-| ScrollArea catalogue | `flex-1 min-h-0` — s'adapte dynamiquement à la hauteur du collapsible |
-| 204 No Content | `api.ts` vérifie le status avant `response.json()` |
-| Filtres catalogue | State local + debounce 300ms — pas encore dans l'URL (`useSearchParams` à faire) |
-| Slider prix | `[0, 500]` par défaut, actif uniquement si modifié (`isPriceRangeActive`) |
-| Invalidation après DELETE | Invalider `['articles']` + `['myArticles']` + `['favorites']` |
-| Formulaire | `useAppForm` (factory `createFormHook`) + Zod — schéma dans `src/lib/article.ts` |
-| Formulaire édition | Render `<ArticleForm />` uniquement si `isSuccess === true` |
-| Draft localStorage | PublishPage uniquement, clé `'article-draft'`, jamais dans EditArticlePage |
-| Formatage | Toujours via `formatPrice()` et `formatDate()` de `src/lib/formatters.ts` |
+| Sujet                     | Décision                                                                                             |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Clé de cache catalogue    | `queryKey: ['articles', filters]` — les filtres DANS la clé                                          |
+| Optimistic updates        | `onMutate` (snapshot + update) → `onError` (rollback) → `onSettled` (resync)                         |
+| Favoris icône             | Classes conditionnelles `cn()` sur `isFavorite`, pas de sélecteur CSS group (incompatible HugeIcons) |
+| Skeleton loading          | `ArticleCardSkeleton` × 6 à la place de `LoadingSpinner` — évite le saut de layout                   |
+| ScrollArea catalogue      | `flex-1 min-h-0` — s'adapte dynamiquement à la hauteur du collapsible                                |
+| 204 No Content            | `api.ts` vérifie le status avant `response.json()`                                                   |
+| Filtres catalogue         | State local + debounce 300ms — pas encore dans l'URL (`useSearchParams` à faire)                     |
+| Slider prix               | `[0, 500]` par défaut, actif uniquement si modifié (`isPriceRangeActive`)                            |
+| Invalidation après DELETE | Invalider `['articles']` + `['myArticles']` + `['favorites']`                                        |
+| Formulaire                | `useAppForm` (factory `createFormHook`) + Zod — schéma dans `src/lib/article.ts`                     |
+| Formulaire édition        | Render `<ArticleForm />` uniquement si `isSuccess === true`                                          |
+| Draft localStorage        | PublishPage uniquement, clé `'article-draft'`, jamais dans EditArticlePage                           |
+| Formatage                 | Toujours via `formatPrice()` et `formatDate()` de `src/lib/formatters.ts`                            |
