@@ -182,11 +182,11 @@
 
 ### 3.4 Design responsive — 1,5 pt
 
-- [ ] `ArticleGrid.tsx` : `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+- [x] `ArticleGrid.tsx` : `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
 - [ ] `App.tsx` navbar : sur mobile (<640px), empiler les liens verticalement ou ajouter un menu burger
     - Option simple : `flex-wrap` + icônes sur mobile
     - Option complète : bouton hamburger + menu déroulant mobile
-- [ ] `ArticleForm.tsx` : champs en colonne sur mobile (`flex-col`), labels lisibles
+- [x] `ArticleForm.tsx` : champs en colonne sur mobile (layout `FieldGroup` = colonne par défaut)
 - [ ] `ArticleDetailPage.tsx` : image pleine largeur sur mobile, texte en dessous
 - [ ] **Tester à 375px** dans DevTools : contenu lisible, pas de débordement, navigation utilisable
 
