@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FavouriteIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { findCategoryLabel, findConditionLabel } from "@/lib/article";
@@ -21,25 +21,32 @@ interface ArticleCardProps {
     article: Article;
     isFavorite: boolean;
     onToggleFavorite: () => void;
-    onViewDetail?: () => void;
 }
 
 export function ArticleCard({
     article,
     isFavorite,
     onToggleFavorite,
-    onViewDetail,
 }: ArticleCardProps) {
+    const navigate = useNavigate();
+
     const categoryLabel = findCategoryLabel({ category: article.category });
     const conditionLabel = findConditionLabel({ condition: article.condition });
 
+    function onViewDetail() {
+        navigate(`/articles/${article.id}`);
+    }
+
     return (
-        <Card className="overflow-hidden py-0">
-            <div className="relative">
+        <Card
+            className="group flex h-full cursor-pointer flex-col overflow-hidden py-0 transition-shadow duration-200 hover:shadow-lg"
+            onClick={onViewDetail}
+        >
+            <div className="relative overflow-hidden">
                 <img
                     src={article.imageUrl}
                     alt={article.title}
-                    className="h-60 w-full object-cover"
+                    className="h-60 w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
                 />
                 <Toggle
                     className="bg-background/70 absolute top-2 right-2 h-9 w-9 rounded-full shadow-md backdrop-blur-sm"
@@ -85,7 +92,7 @@ export function ArticleCard({
                     {conditionLabel}
                 </Badge>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
                 <CardDescription>{article.description}</CardDescription>
             </CardContent>
             <CardFooter className="flex items-center justify-between px-4 py-3">
@@ -97,8 +104,11 @@ export function ArticleCard({
                         {formatDate(article.createdAt)}
                     </span>
                 </div>
-                <Button onClick={onViewDetail} asChild>
-                    <Link to={`/articles/${article.id}`}>Voir l'article</Link>
+                <Button
+                    className="opacity-0 transition-all duration-200 group-hover:opacity-100"
+                    onClick={onViewDetail}
+                >
+                    Voir l'article
                 </Button>
             </CardFooter>
         </Card>
