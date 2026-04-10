@@ -3,6 +3,7 @@ import {
     FilterAddIcon,
     FilterRemoveIcon,
     Search,
+    SearchRemoveIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArticleCardSkeleton } from "@/components/ArticleCardSkeleton";
@@ -16,6 +17,13 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
+import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
@@ -28,85 +36,33 @@ import {
     useFavoriteArticles,
     useToggleFavorite,
 } from "@/hooks/article.hooks";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { PRICE_MAX, useCatalogueFilters } from "@/hooks/useCatalogueFilters";
 import {
     CATEGORY_OPTIONS,
     CONDITION_OPTIONS,
     SORT_OPTIONS,
 } from "@/lib/article";
 import { formatPrice } from "@/lib/formatters";
-import type { CategoryType, ConditionType, SortOptions } from "@/types/article";
-
-type CategoryOption = (typeof CATEGORY_OPTIONS)[number];
-type ConditionOption = (typeof CONDITION_OPTIONS)[number];
-type SortOption = (typeof SORT_OPTIONS)[number];
-
-const PRICE_MAX = 500;
-const DEFAULT_PRICE_RANGE: [number, number] = [0, PRICE_MAX];
-
-const DEFAULT_FILTERS = {
-    search: "",
-    category: null as CategoryOption | null,
-    condition: null as ConditionOption | null,
-    sort: null as SortOption | null,
-    priceRange: DEFAULT_PRICE_RANGE,
-};
 
 export default function CataloguePage() {
-    const [search, setSearch] = useState(DEFAULT_FILTERS.search);
-    const [category, setCategory] = useState<CategoryOption | null>(
-        DEFAULT_FILTERS.category,
-    );
-    const [condition, setCondition] = useState<ConditionOption | null>(
-        DEFAULT_FILTERS.condition,
-    );
-    const [sort, setSort] = useState<SortOption | null>(DEFAULT_FILTERS.sort);
-    const [priceRange, setPriceRange] = useState<[number, number]>(
-        DEFAULT_FILTERS.priceRange,
-    );
     const [filtersOpen, setFiltersOpen] = useState(false);
 
-    const debouncedSearch = useDebouncedValue({ value: search, delay: 300 });
-    const debouncedPriceRange = useDebouncedValue({
-        value: priceRange,
-        delay: 300,
-    });
-
-    const isPriceRangeActive =
-        debouncedPriceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
-        debouncedPriceRange[1] !== DEFAULT_PRICE_RANGE[1];
-
-    const hasActiveFilters = Boolean(
-        debouncedSearch || category || condition || sort || isPriceRangeActive,
-    );
-
     const {
-        data: articles,
-        isLoading,
-        isError,
-    } = useArticles({
-        ...(debouncedSearch && { search: debouncedSearch }),
-        ...(category && { category: category.value as CategoryType }),
-        ...(condition && { condition: condition.value as ConditionType }),
-        ...(sort && { sort: sort.value as SortOptions }),
-        ...(isPriceRangeActive && {
-            priceMin: debouncedPriceRange[0],
-            priceMax: debouncedPriceRange[1],
-        }),
-    });
+        search, setSearch,
+        priceRange, setPriceRange,
+        category, setCategory,
+        condition, setCondition,
+        sort, setSort,
+        hasActiveFilters,
+        clearFilters,
+        articleFilters,
+    } = useCatalogueFilters();
 
+    const { data: articles, isLoading, isError } = useArticles(articleFilters);
     const { data: favoritesData } = useFavoriteArticles();
     const { mutate: toggleFavorite } = useToggleFavorite();
 
     const favoriteIds = favoritesData?.favoriteIds ?? new Set<string>();
-
-    function clearFilters() {
-        setSearch(DEFAULT_FILTERS.search);
-        setCategory(DEFAULT_FILTERS.category);
-        setCondition(DEFAULT_FILTERS.condition);
-        setSort(DEFAULT_FILTERS.sort);
-        setPriceRange(DEFAULT_FILTERS.priceRange);
-    }
 
     function handleToggleFavorite(articleId: string) {
         toggleFavorite({ articleId, isFavorite: favoriteIds.has(articleId) });
@@ -147,11 +103,7 @@ export default function CataloguePage() {
                         <CollapsibleTrigger asChild>
                             <Button variant="outline" size="icon">
                                 <HugeiconsIcon
-                                    icon={
-                                        filtersOpen
-                                            ? FilterRemoveIcon
-                                            : FilterAddIcon
-                                    }
+                                    icon={filtersOpen ? FilterRemoveIcon : FilterAddIcon}
                                 />
                             </Button>
                         </CollapsibleTrigger>
@@ -209,9 +161,7 @@ export default function CataloguePage() {
                                 max={PRICE_MAX}
                                 step={5}
                                 value={priceRange}
-                                onValueChange={(v) =>
-                                    setPriceRange(v as [number, number])
-                                }
+                                onValueChange={(v) => setPriceRange(v as [number, number])}
                             />
                             <div className="text-muted-foreground flex justify-between text-xs">
                                 <span>{formatPrice(0)}</span>
@@ -236,8 +186,22 @@ export default function CataloguePage() {
                         message="Impossible de récupérer les articles. Veuillez réessayer."
                     />
                 )}
-                {articles && (
-                    <div className="animate-in fade-in-0 duration-500">
+                {articles?.length === 0 && (
+                    <Empty className="animate-in fade-in-0 duration-300">
+                        <EmptyHeader>
+                            <EmptyMedia variant="icon">
+                                <HugeiconsIcon icon={SearchRemoveIcon} />
+                            </EmptyMedia>
+                            <EmptyTitle>Aucun article trouvé</EmptyTitle>
+                            <EmptyDescription>
+                                Aucun article ne correspond à vos critères.
+                                Essayez de modifier ou d'effacer vos filtres.
+                            </EmptyDescription>
+                        </EmptyHeader>
+                    </Empty>
+                )}
+                {articles && articles.length > 0 && (
+                    <div className="animate-in fade-in-0 duration-300">
                         <ArticleGrid
                             articles={articles}
                             favoriteIds={favoriteIds}
