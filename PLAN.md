@@ -157,7 +157,7 @@
 - [ ] Récupérer `:id` via `useParams()`
 - [ ] Appeler `useArticle(id)`
 - [ ] Vérifier `article.userId === currentUserId` → si non : afficher erreur "Vous n'êtes pas le propriétaire"
-- [ ] **Render conditionnel** : `if (!article) return <LoadingSpinner />` — monter `<ArticleForm />` UNIQUEMENT quand `isSuccess` est true (sinon RHF s'initialise avec des valeurs vides)
+- [ ] **Render conditionnel** : `if (!article) return <LoadingSpinner />` — monter `<ArticleForm />` UNIQUEMENT quand `isSuccess` est true (sinon TanStack Form s'initialise avec les `defaultValues` vides avant que les données soient disponibles)
 - [ ] Passer `defaultValues={article}` à `<ArticleForm />`
 - [ ] Dans `onSubmit` : appeler `updateArticle` → optimistic update immédiat → redirect vers `/articles/:id`
 - [ ] Bouton "Modifier" dans `MyArticlesPage` → navigate vers `/articles/:id/edit`
