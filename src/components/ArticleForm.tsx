@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { useAppForm } from "@/hooks/form.hooks";
@@ -19,6 +19,8 @@ interface ArticleFormProps {
     defaultValues?: Partial<ArticleFormData>;
     onSubmit: (data: ArticleFormData) => Promise<void>;
     isLoading?: boolean;
+    submitLabel?: string;
+    onValuesChange?: (values: Partial<ArticleFormData>) => void;
     renderActions?: (actions: ArticleFormActions) => ReactNode;
 }
 
@@ -27,6 +29,8 @@ export function ArticleForm({
     defaultValues,
     onSubmit,
     isLoading = false,
+    submitLabel = "Publier",
+    onValuesChange,
     renderActions,
 }: ArticleFormProps) {
     const form = useAppForm({
@@ -34,12 +38,17 @@ export function ArticleForm({
             title: defaultValues?.title ?? "",
             description: defaultValues?.description ?? "",
             price: defaultValues?.price ?? 0,
-            category: defaultValues?.category ?? "",
-            size: defaultValues?.size ?? "",
-            condition: defaultValues?.condition ?? "",
+            category: (defaultValues?.category ?? "") as string,
+            size: (defaultValues?.size ?? "") as string,
+            condition: (defaultValues?.condition ?? "") as string,
             imageUrl: defaultValues?.imageUrl ?? "",
         },
         validators: {
+            onChange: onValuesChange
+                ? ({ value }) => {
+                      onValuesChange(value as Partial<ArticleFormData>);
+                  }
+                : undefined,
             onSubmit: articleFormDataSchema,
         },
         onSubmit: async ({ value }) => {
@@ -58,7 +67,7 @@ export function ArticleForm({
                 Réinitialiser
             </Button>
             <Button type="submit" form={id} disabled={isLoading}>
-                {isLoading ? "Envoi…" : "Publier"}
+                {isLoading ? "Envoi…" : submitLabel}
             </Button>
         </div>
     );
@@ -146,6 +155,7 @@ export function ArticleForm({
                     )}
                 />
             </FieldGroup>
+
             {renderActions
                 ? renderActions({ reset: form.reset, isLoading })
                 : defaultActions}
