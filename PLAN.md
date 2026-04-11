@@ -16,6 +16,7 @@
 
 - [x] Créer `src/components/LoadingSpinner.tsx` — spinner centré affiché pendant le chargement
 - [x] Créer `src/components/ErrorMessage.tsx` — affichage message d'erreur (props: `icon`, `title`, `message`, `content`)
+- [x] Créer `src/components/PageHeader.tsx` — back-button + titre + description réutilisable (props : `backTo`, `backLabel`, `title?`, `description?`)
 - [x] Créer `src/components/ArticleCard.tsx`
     - Props : `article: Article`, `isFavorite: boolean`, `onToggleFavorite: () => void`
     - Affiche : image (`object-cover`), titre, prix via `formatPrice()`, catégorie, état, vendeur
@@ -55,20 +56,20 @@
 
 ### 1.3 Hooks TanStack Query
 
-- [x] `useArticles(filters?)` — `queryKey: ['articles', filters]`, construit les query params proprement
+- [x] `useArticles(filters?)` — `queryKey: ['articles', filters]`, query params construits sans valeurs `undefined` (filtrées avant `URLSearchParams`)
 - [x] `useArticle(articleId)` — `queryKey: ['article', id]`
 - [x] `useMyArticles()` — `queryKey: ['myArticles']`, utilise `useCurrentUserId()`
 - [x] `useFavoriteArticles()` — `queryKey: ['favorites']`, retourne `{ favorites, favoriteIds: Set<string> }`
 - [x] `useCreateArticle()` — POST `/articles`, `mutationKey: ['createArticle']`, invalide via `onSettled`
-- [x] `useUpdateArticle(articleId)` — PUT `/articles/:id`, optimistic update sur `article`, `myArticles`, `articles`
-- [x] `useDeleteArticle(articleId)` — DELETE `/articles/:id`, optimistic update retire de `articles`, `myArticles`, `favorites`
+- [x] `useUpdateArticle(articleId)` — PUT `/articles/:id`, optimistic update sur `article`, `myArticles`, `articles` — `cancelQueries` en parallèle (`Promise.all`)
+- [x] `useDeleteArticle(articleId)` — DELETE `/articles/:id`, optimistic update retire de `articles`, `myArticles`, `favorites` — `cancelQueries` en parallèle (`Promise.all`)
 - [x] `useToggleFavorite()` — POST/DELETE `/favorites/:id`, optimistic update sur `favoriteIds` + rollback sur erreur
 
 > **Pattern appliqué sur toutes les mutations (sauf create)** : `onMutate` (cancelQueries + snapshot + setQueryData) → `onError` (rollback) → `onSettled` (invalidateQueries)
 
 ### 1.4 Layout global
 
-- [x] `App.tsx` — header `fixed` (`h-14`, `z-50`), layout `flex flex-col h-screen overflow-hidden`
+- [x] `App.tsx` — header `fixed` (`h-14`, `z-50`), layout `flex flex-col h-screen overflow-hidden`, backdrop blur, nav responsive avec icônes (texte caché sur mobile), `<Toaster />` monté à la racine
 - [x] `main` — `flex-1 overflow-hidden mt-14`, wrapper `max-w-4xl flex flex-col` pour propager la hauteur aux pages
 - [x] `api.ts` — gestion réponse 204 No Content (évite `response.json()` sur body vide)
 
@@ -86,7 +87,7 @@
 - [x] `<ErrorMessage />` si `isError`
 - [x] `<ArticleGrid />` avec `animate-in fade-in-0` à l'apparition
 - [x] `ScrollArea` (`flex-1 min-h-0`) pour la grille — s'adapte à la hauteur du collapsible ouvert/fermé
-- [x] Bouton "Effacer les filtres" désactivé si aucun filtre actif
+- [x] Bouton "Effacer les filtres" désactivé si aucun filtre actif (`variant="ghost"`, pas destructive)
 - [x] Compteur dynamique de résultats dans l'input de recherche
 - [x] Icône du bouton filtre toggle entre `FilterAddIcon` / `FilterRemoveIcon`
 - [x] Filtres synchronisés dans l'URL via `useSearchParams()` — `category`/`condition`/`sort` écrits immédiatement, `search`/`priceRange` après debounce via `useEffect`
@@ -94,47 +95,43 @@
 
 ### 2.2 ArticleDetailPage — 1 pt
 
-- [ ] Remplacer le stub `src/pages/ArticleDetailPage.tsx`
-- [ ] Récupérer `:id` via `useParams()`
-- [ ] Appeler `useArticle(id)` (TanStack Query)
-- [ ] Afficher : image grande, titre, prix `formatPrice()`, description complète, catégorie, état, taille, vendeur, date `formatDate()`
-- [ ] Lien "← Retour au catalogue" vers `/`
-- [ ] `<LoadingSpinner />` pendant `isLoading`
-- [ ] `<ErrorMessage />` si `isError` (404 ou erreur API)
+- [x] Récupérer `:id` via `useParams()`
+- [x] Appeler `useArticle(id)` (TanStack Query)
+- [x] Afficher dans `Card` shadcn : image grande, titre, prix `formatPrice()`, description, catégorie, état, taille, vendeur, date `formatDate()`
+- [x] Lien "← Retour au catalogue" vers `/`
+- [x] `<LoadingSpinner />` pendant `isLoading`
+- [x] `<ErrorMessage />` si `isError` (404 ou erreur API)
 
 ### 2.3 PublishPage — 2 pts
 
-- [ ] Remplacer le stub `src/pages/PublishPage.tsx`
-- [ ] Utiliser `<ArticleForm />` sans `defaultValues` (mode création)
-- [ ] Appeler `useCreateArticle()` (TanStack Query mutation) dans `onSubmit`
-- [ ] Après création réussie (`onSuccess`) : redirect vers `/articles/:newId` via `useNavigate`
-- [ ] Afficher `<ErrorMessage />` sous le formulaire si la mutation échoue (`isError`)
-- [ ] **Feature optionnelle draft (voir Phase 3.1)** : intégrer `useDraftForm` ici
+- [x] Utiliser `<ArticleForm />` sans `defaultValues` (mode création)
+- [x] Appeler `useCreateArticle()` (TanStack Query mutation) dans `onSubmit`
+- [x] Après création réussie : redirect vers `/articles/:newId` via `useNavigate`
+- [x] `PageHeader` avec titre + description
+- [x] **Feature optionnelle draft (voir Phase 3.1)** : `useDraftForm` intégré (restauration au montage + clear après publication)
 
 ### 2.4 MyArticlesPage — 1,5 pt
 
-- [ ] Remplacer le stub `src/pages/MyArticlesPage.tsx`
-- [ ] Appeler `useMyArticles()` (TanStack Query — articles de l'utilisateur courant uniquement)
-- [ ] Si liste vide : message + lien vers `/`
-- [ ] Bouton "Supprimer" sur chaque article → `AlertDialog` shadcn (confirmation) → `useDeleteArticle()` → optimistic update immédiat
-- [ ] Bouton "Modifier" sur chaque article → `useNavigate` vers `/articles/:id/edit` (feature optionnelle 3.2)
-- [ ] `<LoadingSpinner />` pendant `isLoading`, `<ErrorMessage />` si `isError`
-- [ ] La liste se met à jour automatiquement après suppression (optimistic update TanStack Query)
+- [x] Appeler `useMyArticles()` (TanStack Query — articles de l'utilisateur courant uniquement)
+- [x] État vide : composant `Empty` shadcn + lien vers `/publish`
+- [x] Bouton "Supprimer" sur chaque article → `AlertDialog` shadcn (confirmation) → `useDeleteArticle()` → optimistic update immédiat
+- [x] Bouton "Modifier" sur chaque article → `useNavigate` vers `/articles/:id/edit`
+- [x] `<LoadingSpinner />` pendant `isLoading`, `<ErrorMessage />` si `isError`
+- [x] Type `ArticleRow` utilisé : `Article` directement (plus de `ReturnType` acrobatique)
 
 ### 2.5 FavoritesPage — 2 pts
 
-- [ ] Remplacer le stub `src/pages/FavoritesPage.tsx`
-- [ ] Appeler `useFavoriteArticles()` (TanStack Query)
-- [ ] Si liste vide : message explicatif (composant `Empty` shadcn)
-- [ ] Bouton "Retirer" sur chaque favori → `useToggleFavorite()` → optimistic update immédiat (TanStack Query)
-- [ ] `<LoadingSpinner />` pendant `isLoading`, `<ErrorMessage />` si `isError`
+- [x] Appeler `useFavoriteArticles()` (TanStack Query)
+- [x] État vide : composant `Empty` shadcn + lien vers catalogue
+- [x] Bouton favori → `useToggleFavorite()` → optimistic update immédiat
+- [x] `<LoadingSpinner />` pendant `isLoading`, `<ErrorMessage />` si `isError`
 
 ### 2.6 Navigation cohérente — 0,5 pt
 
 - [x] NavLinks `App.tsx` : Accueil, Mes annonces, Favoris, bouton "Publier" (`ArticleFormDialog`)
-- [ ] Brancher `ArticleFormDialog.onSubmit` sur `useCreateArticle` (actuellement `console.log`)
-- [ ] Lien "← Retour au catalogue" dans ArticleDetailPage
-- [ ] Pas de liens cassés dans toute l'application
+- [x] `ArticleFormDialog.onSubmit` branché sur `useCreateArticle`
+- [x] Lien "← Retour au catalogue" dans ArticleDetailPage
+- [x] Pas de liens cassés dans toute l'application
 
 ---
 
@@ -142,29 +139,26 @@
 
 ### 3.1 Brouillon automatique — 1,5 pt
 
-- [ ] Créer `src/hooks/useDraftForm.ts`
-    - Accepte la `form` instance retournée par `useAppForm` (TanStack Form)
-    - `useEffect` + `form.useStore(s => s.values)` → `localStorage.setItem('article-draft', JSON.stringify(values))`
-    - Au montage : `localStorage.getItem('article-draft')` → `form.setFieldValue(field, value)` pour chaque champ si données trouvées
-    - Exposer `clearDraft()` → `localStorage.removeItem('article-draft')`
-- [ ] Intégrer dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — sinon collision de clé)
-- [ ] Appeler `clearDraft()` dans le callback `onSuccess` de `useCreateArticle()`
-- [ ] **Tester manuellement** : remplir, quitter, revenir → champs restaurés ; publier, revenir → champs vides
+- [x] Créer `src/hooks/useDraftForm.ts`
+    - Lit le brouillon dans `localStorage` au montage, retourne `{ savedValues }`
+    - `saveDraft(values)` et `clearDraft()` exportés comme fonctions pures (pas via le hook — pas d'état réactif)
+- [x] Intégré dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — collision de clé)
+- [x] `clearDraft()` appelé dans le handler `onSubmit` après création réussie
+- [ ] Auto-save sur changement : brancher `form.useStore(s => s.values)` → `saveDraft` dans un `useEffect`
 
 ### 3.2 Édition d'annonce — 1,5 pt
 
-- [ ] Remplacer le stub `src/pages/EditArticlePage.tsx`
-- [ ] Récupérer `:id` via `useParams()`
-- [ ] Appeler `useArticle(id)` (TanStack Query)
-- [ ] Vérifier `article.userId === currentUserId` → si non : `<ErrorMessage />` "Vous n'êtes pas le propriétaire"
-- [ ] **Render conditionnel** : `if (!isSuccess) return <LoadingSpinner />` — monter `<ArticleForm />` UNIQUEMENT quand `isSuccess` est true (sinon TanStack Form s'initialise avec les `defaultValues` vides avant que les données soient disponibles)
-- [ ] Passer `defaultValues={article}` à `<ArticleForm />`
-- [ ] Dans `onSubmit` : appeler `useUpdateArticle(id)` → optimistic update TanStack Query → redirect vers `/articles/:id` via `useNavigate`
-- [ ] Bouton "Modifier" dans `MyArticlesPage` → `useNavigate` vers `/articles/:id/edit`
+- [x] `src/pages/EditArticlePage.tsx` implémenté
+- [x] Récupère `:id` via `useParams()`
+- [x] Appelle `useArticle(id)` — rendu conditionnel sur `isSuccess` uniquement (évite init TanStack Form avec valeurs vides)
+- [x] Vérifie `article.userId === currentUserId` → `<ErrorMessage />` "Accès refusé" si non
+- [x] Passe `defaultValues={article}` à `<ArticleForm />`
+- [x] `useUpdateArticle(id)` dans `onSubmit` → redirect vers `/articles/:id`
+- [x] Bouton "Modifier" dans `MyArticlesPage` → `/articles/:id/edit`
 
 ### 3.3 Tests composants — 1,5 pt
 
-- [ ] Installer les dépendances de test si manquantes (déjà dans devDependencies : `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`)
+- [ ] Installer les dépendances de test si manquantes (`@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`)
 - [ ] Vérifier `src/test/setup.ts` (import `@testing-library/jest-dom`)
 - [ ] Créer `src/components/ArticleCard.test.tsx`
     - Test 1 : affiche le titre, le prix formaté ("12,50 €"), le nom du vendeur
@@ -183,11 +177,9 @@
 ### 3.4 Design responsive — 1,5 pt
 
 - [x] `ArticleGrid.tsx` : `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
-- [ ] `App.tsx` navbar : sur mobile (<640px), empiler les liens verticalement ou ajouter un menu burger
-    - Option simple : `flex-wrap` + icônes sur mobile
-    - Option complète : bouton hamburger + menu déroulant mobile
+- [x] `App.tsx` navbar : texte masqué sur mobile (`hidden sm:block`), icônes seules visibles
 - [x] `ArticleForm.tsx` : champs en colonne sur mobile (layout `FieldGroup` = colonne par défaut)
-- [ ] `ArticleDetailPage.tsx` : image pleine largeur sur mobile, texte en dessous
+- [x] `ArticleDetailPage.tsx` : image pleine largeur sur mobile (`grid md:grid-cols-2`), `Card` détail en dessous
 - [ ] **Tester à 375px** dans DevTools : contenu lisible, pas de débordement, navigation utilisable
 
 ---
@@ -197,10 +189,10 @@
 - [ ] `npx tsc --noEmit` → **0 erreur** (à vérifier avant chaque commit important)
 - [ ] `pnpm lint` → **0 erreur** oxlint
 - [ ] `pnpm format` → formatter tout le code avant la soutenance
-- [ ] Pas de `any` TypeScript dans tout le code
-- [ ] Chaque page gérant des données affiche : état de chargement ET message d'erreur
-- [ ] Nommage clair : composants en PascalCase, hooks en camelCase commençant par `use`, fonctions en camelCase verbes
-- [ ] Pas de logique dupliquée (vérifier que les appels API passent tous par les hooks, pas de `fetch` direct dans les composants)
+- [x] Pas de `any` TypeScript dans tout le code
+- [x] Chaque page gérant des données affiche : état de chargement ET message d'erreur
+- [x] Nommage clair : composants en PascalCase, hooks en camelCase commençant par `use`, fonctions en camelCase verbes
+- [x] Pas de logique dupliquée (appels API via hooks, pas de `fetch` direct dans les composants)
 
 ---
 
@@ -219,18 +211,21 @@
 
 ## Points de vigilance (décisions architecturales)
 
-| Sujet                     | Décision                                                                                             |
-| ------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Clé de cache catalogue    | `queryKey: ['articles', filters]` — les filtres DANS la clé                                          |
-| Optimistic updates        | `onMutate` (snapshot + update) → `onError` (rollback) → `onSettled` (resync)                         |
-| Favoris icône             | Classes conditionnelles `cn()` sur `isFavorite`, pas de sélecteur CSS group (incompatible HugeIcons) |
-| Skeleton loading          | `ArticleCardSkeleton` × 6 à la place de `LoadingSpinner` — évite le saut de layout                   |
-| ScrollArea catalogue      | `flex-1 min-h-0` — s'adapte dynamiquement à la hauteur du collapsible                                |
-| 204 No Content            | `api.ts` vérifie le status avant `response.json()`                                                   |
-| Filtres catalogue         | State local + debounce 300ms + `useSearchParams` sync dans `useCatalogueFilters.ts`                  |
-| Slider prix               | `[0, 500]` par défaut, actif uniquement si modifié (`isPriceRangeActive`)                            |
-| Invalidation après DELETE | Invalider `['articles']` + `['myArticles']` + `['favorites']`                                        |
-| Formulaire                | `useAppForm` (factory `createFormHook`) + Zod — schéma dans `src/lib/article.ts`                     |
-| Formulaire édition        | Render `<ArticleForm />` uniquement si `isSuccess === true`                                          |
-| Draft localStorage        | PublishPage uniquement, clé `'article-draft'`, jamais dans EditArticlePage                           |
-| Formatage                 | Toujours via `formatPrice()` et `formatDate()` de `src/lib/formatters.ts`                            |
+| Sujet                     | Décision                                                                                                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Clé de cache catalogue    | `queryKey: ['articles', filters]` — les filtres DANS la clé                                                                                                              |
+| Optimistic updates        | `onMutate` (snapshot + update) → `onError` (rollback) → `onSettled` (resync)                                                                                             |
+| Favoris icône             | `cn()` sur `isFavorite` — pas de sélecteur CSS group (incompatible HugeIcons)                                                                                            |
+| Skeleton loading          | `ArticleCardSkeleton` × 6 — évite le saut de layout                                                                                                                      |
+| ScrollArea catalogue      | `flex-1 min-h-0` — s'adapte à la hauteur du collapsible                                                                                                                  |
+| 204 No Content            | `api.ts` vérifie le status avant `response.json()`                                                                                                                       |
+| Filtres catalogue         | State local + debounce 300ms + `useSearchParams` sync                                                                                                                    |
+| Slider prix               | `[0, 500]` par défaut, actif uniquement si modifié                                                                                                                       |
+| Invalidation après DELETE | Invalider `['articles']` + `['myArticles']` + `['favorites']`                                                                                                            |
+| Formulaire                | `useAppForm` (factory `createFormHook`) + Zod                                                                                                                            |
+| Formulaire édition        | Render `<ArticleForm />` uniquement si `isSuccess === true`                                                                                                              |
+| Draft localStorage        | PublishPage uniquement, clé `'article-draft'`, jamais dans EditArticlePage — `saveDraft`/`clearDraft` exportés directement (fonctions pures, pas retournées via le hook) |
+| Formatage                 | Toujours via `formatPrice()` et `formatDate()` de `src/lib/formatters.ts`                                                                                                |
+| PageHeader                | `src/components/PageHeader.tsx` — réutilisé dans PublishPage, EditArticlePage, ArticleDetailPage                                                                         |
+| Nav responsive            | Texte masqué `hidden sm:block`, icônes seules sur mobile                                                                                                                 |
+| Bouton Effacer filtres    | `variant="ghost"` — pas `destructive` (trop agressif pour une action secondaire)                                                                                         |
