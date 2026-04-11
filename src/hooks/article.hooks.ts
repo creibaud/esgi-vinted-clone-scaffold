@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useCurrentUserId } from "@/hooks/useCurrentUserId";
 import { queryClient } from "@/lib/tanstack-query";
 import { api } from "@/services/api";
@@ -8,12 +9,11 @@ export function useArticles(params?: ArticleFilters) {
     return useQuery({
         queryKey: ["articles", params],
         queryFn: async () => {
-            const queryParams = new URLSearchParams(
-                params as Record<string, string>,
-            ).toString();
-
-            const isEmptyQuery = !params || Object.keys(params).length === 0;
-            const url = isEmptyQuery ? "/articles" : `/articles?${queryParams}`;
+            const defined = Object.fromEntries(
+                Object.entries(params ?? {}).filter(([, v]) => v !== undefined),
+            ) as Record<string, string>;
+            const queryParams = new URLSearchParams(defined).toString();
+            const url = queryParams ? `/articles?${queryParams}` : "/articles";
             return await api.get<Article[]>(url);
         },
     });
@@ -49,12 +49,17 @@ export function useFavoriteArticles() {
     });
 }
 
-// Server generates id, createdAt, userId, userName — no optimistic update possible
 export function useCreateArticle() {
     return useMutation({
         mutationKey: ["createArticle"],
         mutationFn: async (data: ArticleFormData) => {
             return await api.post<Article>("/articles", data);
+        },
+        onSuccess: () => {
+            toast.success("Annonce publiée !");
+        },
+        onError: () => {
+            toast.error("Impossible de publier l'annonce.");
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["articles"] });
@@ -69,12 +74,15 @@ export function useUpdateArticle(articleId: string) {
         mutationFn: async (data: ArticleFormData) => {
             return await api.put<Article>(`/articles/${articleId}`, data);
         },
+        onSuccess: () => {
+            toast.success("Annonce mise à jour !");
+        },
         onMutate: async (data) => {
-            await queryClient.cancelQueries({ queryKey: ["articles"] });
-            await queryClient.cancelQueries({ queryKey: ["myArticles"] });
-            await queryClient.cancelQueries({
-                queryKey: ["article", articleId],
-            });
+            await Promise.all([
+                queryClient.cancelQueries({ queryKey: ["articles"] }),
+                queryClient.cancelQueries({ queryKey: ["myArticles"] }),
+                queryClient.cancelQueries({ queryKey: ["article", articleId] }),
+            ]);
 
             const previousArticle = queryClient.getQueryData<Article>([
                 "article",
@@ -101,6 +109,7 @@ export function useUpdateArticle(articleId: string) {
             return { previousArticle, previousMyArticles };
         },
         onError: (_err, _data, context) => {
+            toast.error("Impossible de mettre à jour l'annonce.");
             if (context?.previousArticle) {
                 queryClient.setQueryData(
                     ["article", articleId],
@@ -139,6 +148,11 @@ export function useToggleFavorite() {
             }
             return await api.post(`/favorites/${articleId}`, {});
         },
+        onSuccess: (_data, { isFavorite }) => {
+            toast.success(
+                isFavorite ? "Retiré des favoris." : "Ajouté aux favoris !",
+            );
+        },
         onMutate: async ({ articleId, isFavorite }) => {
             await queryClient.cancelQueries({ queryKey: ["favorites"] });
 
@@ -165,6 +179,7 @@ export function useToggleFavorite() {
             return { previous };
         },
         onError: (_err, _vars, context) => {
+            toast.error("Impossible de modifier les favoris.");
             if (context?.previous) {
                 queryClient.setQueryData(["favorites"], context.previous);
             }
@@ -181,10 +196,15 @@ export function useDeleteArticle(articleId: string) {
         mutationFn: async () => {
             return await api.delete(`/articles/${articleId}`);
         },
+        onSuccess: () => {
+            toast.success("Annonce supprimée.");
+        },
         onMutate: async () => {
-            await queryClient.cancelQueries({ queryKey: ["articles"] });
-            await queryClient.cancelQueries({ queryKey: ["myArticles"] });
-            await queryClient.cancelQueries({ queryKey: ["favorites"] });
+            await Promise.all([
+                queryClient.cancelQueries({ queryKey: ["articles"] }),
+                queryClient.cancelQueries({ queryKey: ["myArticles"] }),
+                queryClient.cancelQueries({ queryKey: ["favorites"] }),
+            ]);
 
             const previousMyArticles = queryClient.getQueryData<Article[]>([
                 "myArticles",
@@ -214,6 +234,7 @@ export function useDeleteArticle(articleId: string) {
             return { previousMyArticles, previousFavorites };
         },
         onError: (_err, _vars, context) => {
+            toast.error("Impossible de supprimer l'annonce.");
             if (context?.previousMyArticles) {
                 queryClient.setQueryData(
                     ["myArticles"],
