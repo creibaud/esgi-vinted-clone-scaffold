@@ -1,18 +1,23 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { toast } from "sonner";
+import { ArticleImage } from "@/components/ArticleImage";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { useArticle } from "@/hooks/article.hooks";
+import { useCurrentUserId } from "@/hooks/useCurrentUserId";
 import { findCategoryLabel, findConditionLabel } from "@/lib/article";
 import { formatDate, formatPrice } from "@/lib/formatters";
 
 export default function ArticleDetailPage() {
-    // on récupère l'id depuis l'URL /articles/:id
     const { id } = useParams<{ id: string }>();
     const { data: article, isLoading, isError } = useArticle(id!);
+    const currentUserId = useCurrentUserId();
 
     if (isLoading) return <LoadingSpinner />;
 
@@ -27,51 +32,86 @@ export default function ArticleDetailPage() {
 
     const categoryLabel = findCategoryLabel({ category: article.category });
     const conditionLabel = findConditionLabel({ condition: article.condition });
+    const isOwner = article.userId === currentUserId;
 
     return (
-        <div className="flex flex-col gap-6">
-            {/* lien retour catalogue */}
-            <Button variant="ghost" asChild className="w-fit">
-                <Link to="/">
-                    <HugeiconsIcon icon={ArrowLeft01Icon} className="mr-2 size-4" />
-                    Retour au catalogue
-                </Link>
-            </Button>
+        <div className="flex h-full flex-col">
+            <PageHeader backTo="/" backLabel="Retour au catalogue" />
 
-            <div className="grid gap-6 md:grid-cols-2">
-                <img
-                    src={article.imageUrl}
-                    alt={article.title}
-                    className="w-full rounded-lg object-cover md:h-96"
-                />
+            <ScrollArea className="min-h-0 flex-1">
+                <div className="grid gap-4 p-4 md:grid-cols-2">
+                    <ArticleImage
+                        src={article.imageUrl}
+                        alt={article.title}
+                        className="w-full rounded-xl md:h-120"
+                    />
 
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-bold">{article.title}</h1>
-                        <span className="text-3xl font-bold text-green-600">
-                            {formatPrice(article.price)}
-                        </span>
-                    </div>
+                    <Card className="flex flex-col gap-0 py-0">
+                        <CardContent className="flex flex-1 flex-col gap-5 p-6">
+                            <div className="flex flex-col gap-1">
+                                <h1 className="text-2xl leading-tight font-bold">
+                                    {article.title}
+                                </h1>
+                                <span className="text-3xl font-bold text-green-600">
+                                    {formatPrice(article.price)}
+                                </span>
+                            </div>
 
-                    {/* badges catégorie, état, taille */}
-                    <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary">{categoryLabel}</Badge>
-                        <Badge variant="outline">{conditionLabel}</Badge>
-                        <Badge variant="outline">Taille {article.size}</Badge>
-                    </div>
+                            <div className="flex flex-wrap gap-2">
+                                <Badge variant="secondary">
+                                    {categoryLabel}
+                                </Badge>
+                                <Badge variant="outline">
+                                    {conditionLabel}
+                                </Badge>
+                                <Badge variant="outline">
+                                    Taille {article.size}
+                                </Badge>
+                            </div>
 
-                    <p className="text-muted-foreground leading-relaxed">
-                        {article.description}
-                    </p>
+                            <p className="text-muted-foreground leading-relaxed">
+                                {article.description}
+                            </p>
 
-                    <div className="border-t pt-4">
-                        <p className="text-sm font-medium">{article.userName}</p>
-                        <p className="text-muted-foreground text-sm">
-                            Publié le {formatDate(article.createdAt)}
-                        </p>
-                    </div>
+                            <Separator />
+
+                            <div className="flex flex-col gap-0.5">
+                                <p className="text-sm font-medium">
+                                    {article.userName}
+                                </p>
+                                <p className="text-muted-foreground text-sm">
+                                    Publié le {formatDate(article.createdAt)}
+                                </p>
+                            </div>
+
+                            {isOwner ? (
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="mt-auto w-full"
+                                    size="lg"
+                                >
+                                    <Link to={`/articles/${article.id}/edit`}>
+                                        Modifier mon annonce
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <Button
+                                    className="mt-auto w-full"
+                                    size="lg"
+                                    onClick={() =>
+                                        toast.info(
+                                            "La messagerie n'est pas encore disponible.",
+                                        )
+                                    }
+                                >
+                                    Contacter le vendeur
+                                </Button>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
-            </div>
+            </ScrollArea>
         </div>
     );
 }
