@@ -132,6 +132,7 @@
 - [x] `ArticleFormDialog.onSubmit` branché sur `useCreateArticle`
 - [x] Lien "← Retour au catalogue" dans ArticleDetailPage
 - [x] Pas de liens cassés dans toute l'application
+- [ ] Créer `src/pages/NotFoundPage.tsx` + route `path="*"` dans `main.tsx` (page 404 avec bouton retour catalogue)
 
 ---
 
@@ -144,7 +145,10 @@
     - `saveDraft(values)` et `clearDraft()` exportés comme fonctions pures (pas via le hook — pas d'état réactif)
 - [x] Intégré dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — collision de clé)
 - [x] `clearDraft()` appelé dans le handler `onSubmit` après création réussie
-- [ ] Auto-save sur changement : brancher `form.useStore(s => s.values)` → `saveDraft` dans un `useEffect`
+- [x] Auto-save sur changement : `onValuesChange={saveDraft}` passé à `<ArticleForm />` → branché sur le validateur `onChange` de TanStack Form (équivalent à `useStore` + `useEffect`, sans subscription manuelle)
+- [ ] Bouton "Réinitialiser" dans `PublishPage` doit aussi appeler `clearDraft()` (actuellement seul `form.reset()` est appelé, le brouillon localStorage persiste)
+- [ ] `ArticleFormDialog` (header) : formulaire non réinitialisé à la fermeture du dialog — les champs saisis restent si on rouvre ; utiliser `renderActions` pour exposer `reset` et appeler `form.reset()` dans `onOpenChange`
+- [ ] `ArticleFormDialog` (header) : saisie perdue à la fermeture (pas de draft) — décision à prendre : brancher `saveDraft`/`clearDraft` ou accepter la perte (dialog = saisie rapide)
 
 ### 3.2 Édition d'annonce — 1,5 pt
 
@@ -180,7 +184,12 @@
 - [x] `App.tsx` navbar : texte masqué sur mobile (`hidden sm:block`), icônes seules visibles
 - [x] `ArticleForm.tsx` : champs en colonne sur mobile (layout `FieldGroup` = colonne par défaut)
 - [x] `ArticleDetailPage.tsx` : image pleine largeur sur mobile (`grid md:grid-cols-2`), `Card` détail en dessous
-- [ ] **Tester à 375px** dans DevTools : contenu lisible, pas de débordement, navigation utilisable
+- [ ] `MyArticlesPage.tsx` : `ArticleRow` en colonne sur mobile (image au-dessus, infos en dessous) — actuellement `flex-row` fixe, déborde sur petits écrans
+- [ ] `FavoritesPage.tsx` : vérifier lisibilité `Item` sur mobile (titre + prix + bouton dans une petite largeur)
+- [ ] `CataloguePage.tsx` : filtres (Collapsible) lisibles et utilisables sur mobile — slider prix utilisable au doigt
+- [ ] `PublishPage.tsx` / `EditArticlePage.tsx` : `ScrollArea` du formulaire fonctionne bien sur mobile (pas de débordement, champs accessibles)
+- [ ] `NotFoundPage.tsx` : responsive dès la création
+- [ ] **Tester chaque page à 375px** dans DevTools : contenu lisible, pas de débordement horizontal, navigation utilisable
 
 ---
 
