@@ -19,6 +19,8 @@ interface ArticleFormProps {
     defaultValues?: Partial<ArticleFormData>;
     onSubmit: (data: ArticleFormData) => Promise<void>;
     isLoading?: boolean;
+    submitLabel?: string;
+    onValuesChange?: (values: Partial<ArticleFormData>) => void;
     renderActions?: (actions: ArticleFormActions) => ReactNode;
 }
 
@@ -27,6 +29,8 @@ export function ArticleForm({
     defaultValues,
     onSubmit,
     isLoading = false,
+    submitLabel = "Publier",
+    onValuesChange,
     renderActions,
 }: ArticleFormProps) {
     const form = useAppForm({
@@ -34,14 +38,17 @@ export function ArticleForm({
             title: defaultValues?.title ?? "",
             description: defaultValues?.description ?? "",
             price: defaultValues?.price ?? 0,
-            // cast nécessaire car "" n'est pas une valeur valide du type union
             category: (defaultValues?.category ?? "") as string,
             size: (defaultValues?.size ?? "") as string,
             condition: (defaultValues?.condition ?? "") as string,
             imageUrl: defaultValues?.imageUrl ?? "",
         },
         validators: {
-            // validation au moment de la soumission avec le schéma zod
+            onChange: onValuesChange
+                ? ({ value }) => {
+                      onValuesChange(value as Partial<ArticleFormData>);
+                  }
+                : undefined,
             onSubmit: articleFormDataSchema,
         },
         onSubmit: async ({ value }) => {
@@ -49,7 +56,6 @@ export function ArticleForm({
         },
     });
 
-    // boutons par défaut si renderActions n'est pas fourni
     const defaultActions = (
         <div className="mt-6 flex justify-end gap-3">
             <Button
@@ -61,7 +67,7 @@ export function ArticleForm({
                 Réinitialiser
             </Button>
             <Button type="submit" form={id} disabled={isLoading}>
-                {isLoading ? "Envoi…" : "Publier"}
+                {isLoading ? "Envoi…" : submitLabel}
             </Button>
         </div>
     );
@@ -76,7 +82,6 @@ export function ArticleForm({
             noValidate
         >
             <FieldGroup>
-                {/* champ titre */}
                 <form.AppField
                     name="title"
                     children={(field) => (
@@ -87,7 +92,6 @@ export function ArticleForm({
                     )}
                 />
 
-                {/* champ description */}
                 <form.AppField
                     name="description"
                     children={(field) => (
@@ -99,7 +103,6 @@ export function ArticleForm({
                     )}
                 />
 
-                {/* champ prix */}
                 <form.AppField
                     name="price"
                     children={(field) => (
@@ -112,7 +115,6 @@ export function ArticleForm({
                     )}
                 />
 
-                {/* sélection catégorie */}
                 <form.AppField
                     name="category"
                     children={(field) => (
@@ -123,7 +125,6 @@ export function ArticleForm({
                     )}
                 />
 
-                {/* sélection taille */}
                 <form.AppField
                     name="size"
                     children={(field) => (
@@ -134,7 +135,6 @@ export function ArticleForm({
                     )}
                 />
 
-                {/* sélection état */}
                 <form.AppField
                     name="condition"
                     children={(field) => (
@@ -145,7 +145,6 @@ export function ArticleForm({
                     )}
                 />
 
-                {/* champ URL image */}
                 <form.AppField
                     name="imageUrl"
                     children={(field) => (
@@ -157,7 +156,6 @@ export function ArticleForm({
                 />
             </FieldGroup>
 
-            {/* on utilise renderActions si fourni, sinon les boutons par défaut */}
             {renderActions
                 ? renderActions({ reset: form.reset, isLoading })
                 : defaultActions}

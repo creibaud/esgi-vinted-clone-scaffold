@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FavouriteIcon, Image01Icon } from "@hugeicons/core-free-icons";
+import { FavouriteIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { ArticleImage } from "@/components/ArticleImage";
 import { findCategoryLabel, findConditionLabel } from "@/lib/article";
 import { formatDate, formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,6 @@ import { Button } from "./ui/button";
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
@@ -19,9 +18,9 @@ import {
 import { Toggle } from "./ui/toggle";
 
 interface ArticleCardProps {
-    article: Article;
-    isFavorite: boolean;
-    onToggleFavorite: () => void;
+    readonly article: Article;
+    readonly isFavorite: boolean;
+    readonly onToggleFavorite: () => void;
 }
 
 export function ArticleCard({
@@ -30,37 +29,31 @@ export function ArticleCard({
     onToggleFavorite,
 }: ArticleCardProps) {
     const navigate = useNavigate();
-    const [imageError, setImageError] = useState(false);
 
     const categoryLabel = findCategoryLabel({ category: article.category });
     const conditionLabel = findConditionLabel({ condition: article.condition });
 
-    function onViewDetail() {
+    function handleViewDetail() {
         navigate(`/articles/${article.id}`);
     }
 
     return (
         <Card
-            className="group flex h-full cursor-pointer flex-col overflow-hidden py-0 transition-shadow duration-200 hover:shadow-lg"
-            onClick={onViewDetail}
+            className="group flex h-full cursor-pointer flex-col overflow-hidden py-0 transition-all duration-200 hover:shadow-md"
+            onClick={handleViewDetail}
         >
             <div className="relative overflow-hidden">
-                {imageError ? (
-                    <div className="bg-muted text-muted-foreground flex h-60 w-full items-center justify-center transition-transform duration-500 ease-out group-hover:scale-105">
-                        <HugeiconsIcon icon={Image01Icon} className="size-12" />
-                    </div>
-                ) : (
-                    <img
-                        src={article.imageUrl}
-                        alt={article.title}
-                        className="h-60 w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
-                        onError={() => setImageError(true)}
-                    />
-                )}
+                <ArticleImage
+                    src={article.imageUrl}
+                    alt={article.title}
+                    className="h-56 w-full transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
+                />
+
                 <Toggle
-                    className="bg-background/70 absolute top-2 right-2 h-9 w-9 rounded-full shadow-md backdrop-blur-sm"
+                    className="bg-background/80 absolute top-2 right-2 h-8 w-8 rounded-full backdrop-blur-sm"
                     pressed={isFavorite}
                     onPressedChange={onToggleFavorite}
+                    onClick={(e) => e.stopPropagation()}
                     variant="outline"
                     aria-label={
                         isFavorite
@@ -74,36 +67,48 @@ export function ArticleCard({
                             "size-4 transition",
                             isFavorite
                                 ? "fill-red-500 text-red-500"
-                                : "text-foreground fill-transparent",
+                                : "fill-transparent",
                         )}
                     />
                 </Toggle>
+
                 <div className="absolute bottom-2 left-2 flex gap-1.5">
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge
+                        variant="outline"
+                        className="bg-background text-xs shadow-sm backdrop-blur-sm"
+                    >
                         {categoryLabel}
                     </Badge>
                     <Badge
                         variant="outline"
-                        className="bg-background/70 text-xs backdrop-blur-sm"
+                        className="bg-background text-xs shadow-sm backdrop-blur-sm"
                     >
                         {article.size}
                     </Badge>
+                    <Badge
+                        variant="outline"
+                        className="bg-background text-xs shadow-sm backdrop-blur-sm"
+                    >
+                        {conditionLabel}
+                    </Badge>
                 </div>
             </div>
-            <CardHeader>
-                <CardTitle className="flex items-center justify-between font-semibold">
+
+            <CardHeader className="pb-1">
+                <CardTitle className="text-sm leading-snug font-semibold">
                     {article.title}
-                    <span className="shrink-0 text-base font-bold">
-                        {formatPrice(article.price)}
-                    </span>
                 </CardTitle>
-                <Badge variant="secondary" className="text-xs font-normal">
-                    {conditionLabel}
-                </Badge>
+                <span className="text-base font-bold text-green-600">
+                    {formatPrice(article.price)}
+                </span>
             </CardHeader>
-            <CardContent className="flex-1">
-                <CardDescription>{article.description}</CardDescription>
+
+            <CardContent className="flex-1 pb-2">
+                <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
+                    {article.description}
+                </p>
             </CardContent>
+
             <CardFooter className="flex items-center justify-between px-4 py-3">
                 <div className="flex flex-col">
                     <span className="text-xs font-medium">
@@ -114,10 +119,10 @@ export function ArticleCard({
                     </span>
                 </div>
                 <Button
-                    className="opacity-0 transition-all duration-200 group-hover:opacity-100"
-                    onClick={onViewDetail}
+                    className="hidden transition-all duration-200 sm:block sm:opacity-0 sm:group-hover:opacity-100"
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    Voir l'article
+                    Voir
                 </Button>
             </CardFooter>
         </Card>
