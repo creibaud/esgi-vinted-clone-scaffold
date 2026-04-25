@@ -4,6 +4,7 @@ import { ArticleImage } from "@/components/ArticleImage";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { PageHeader } from "@/components/PageHeader";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,16 +24,20 @@ export default function ArticleDetailPage() {
 
     if (isError || !article) {
         return (
-            <ErrorMessage
-                title="Article introuvable"
-                message="Cet article n'existe pas ou a été supprimé."
-            />
+            <div className="flex h-full flex-col">
+                <PageHeader backTo="/" backLabel="Retour au catalogue" />
+                <ErrorMessage
+                    title="Article introuvable"
+                    message="Cet article n'existe pas ou a été supprimé."
+                />
+            </div>
         );
     }
 
     const categoryLabel = findCategoryLabel({ category: article.category });
     const conditionLabel = findConditionLabel({ condition: article.condition });
     const isOwner = article.userId === currentUserId;
+    const userInitial = article.userName.charAt(0).toUpperCase();
 
     return (
         <div className="flex h-full flex-col">
@@ -75,13 +80,21 @@ export default function ArticleDetailPage() {
 
                             <Separator />
 
-                            <div className="flex flex-col gap-0.5">
-                                <p className="text-sm font-medium">
-                                    {article.userName}
-                                </p>
-                                <p className="text-muted-foreground text-sm">
-                                    Publié le {formatDate(article.createdAt)}
-                                </p>
+                            <div className="flex items-center gap-3">
+                                <Avatar className="size-10">
+                                    <AvatarFallback>
+                                        {userInitial}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex flex-col gap-0.5">
+                                    <p className="text-sm font-medium">
+                                        {article.userName}
+                                    </p>
+                                    <p className="text-muted-foreground text-sm">
+                                        Publié le{" "}
+                                        {formatDate(article.createdAt)}
+                                    </p>
+                                </div>
                             </div>
 
                             {isOwner ? (
