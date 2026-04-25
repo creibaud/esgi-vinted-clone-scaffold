@@ -32,6 +32,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
     useArticles,
     useFavoriteArticles,
     useToggleFavorite,
@@ -87,11 +92,11 @@ export default function CataloguePage() {
                 onOpenChange={setFiltersOpen}
                 className="bg-popover mx-4 rounded-md border p-2"
             >
-                <div className="flex w-full items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                        <InputGroup className="max-w-xs">
+                <div className="flex w-full flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-1 items-center gap-2">
+                        <InputGroup className="min-w-0 flex-1 sm:max-w-xs">
                             <InputGroupInput
-                                placeholder="Rechercher des articles..."
+                                placeholder="Rechercher..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -99,33 +104,63 @@ export default function CataloguePage() {
                                 <HugeiconsIcon icon={Search} />
                             </InputGroupAddon>
                             {articles && (
-                                <InputGroupAddon align="inline-end">
+                                <InputGroupAddon
+                                    align="inline-end"
+                                    className="hidden sm:inline-flex"
+                                >
                                     {articles.length} résultat
                                     {articles.length !== 1 ? "s" : ""}
                                 </InputGroupAddon>
                             )}
                         </InputGroup>
-                        <CollapsibleTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <HugeiconsIcon
-                                    icon={
-                                        filtersOpen
-                                            ? FilterRemoveIcon
-                                            : FilterAddIcon
-                                    }
-                                />
-                            </Button>
-                        </CollapsibleTrigger>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <CollapsibleTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        aria-label={
+                                            filtersOpen
+                                                ? "Fermer les filtres"
+                                                : "Ouvrir les filtres"
+                                        }
+                                    >
+                                        <HugeiconsIcon
+                                            icon={
+                                                filtersOpen
+                                                    ? FilterRemoveIcon
+                                                    : FilterAddIcon
+                                            }
+                                        />
+                                    </Button>
+                                </CollapsibleTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {filtersOpen
+                                    ? "Fermer les filtres"
+                                    : "Ouvrir les filtres"}
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
-                    <Button
-                        variant="destructive"
-                        className="border-destructive/50"
-                        disabled={!hasActiveFilters}
-                        onClick={clearFilters}
-                    >
-                        <HugeiconsIcon icon={FilterRemoveIcon} />
-                        Effacer les filtres
-                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="destructive"
+                                className="border-destructive/50"
+                                disabled={!hasActiveFilters}
+                                onClick={clearFilters}
+                                aria-label="Effacer les filtres"
+                            >
+                                <HugeiconsIcon icon={FilterRemoveIcon} />
+                                <span className="hidden sm:inline">
+                                    Effacer les filtres
+                                </span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className="sm:hidden">
+                            Effacer les filtres
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
 
                 <CollapsibleContent className="mt-2">
@@ -185,7 +220,7 @@ export default function CataloguePage() {
 
             <ScrollArea className="min-h-0 flex-1 px-4">
                 {isLoading && (
-                    <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid w-full grid-cols-1 gap-4 p-2 pb-4 md:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }, (_, i) => (
                             <ArticleCardSkeleton key={i} />
                         ))}
@@ -212,7 +247,7 @@ export default function CataloguePage() {
                     </Empty>
                 )}
                 {articles && articles.length > 0 && (
-                    <div className="animate-in fade-in-0 duration-300">
+                    <div className="animate-in fade-in-0 p-2 pb-4 duration-300">
                         <ArticleGrid
                             articles={articles}
                             favoriteIds={favoriteIds}
