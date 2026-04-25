@@ -132,7 +132,7 @@
 - [x] `ArticleFormDialog.onSubmit` branché sur `useCreateArticle`
 - [x] Lien "← Retour au catalogue" dans ArticleDetailPage
 - [x] Pas de liens cassés dans toute l'application
-- [ ] Créer `src/pages/NotFoundPage.tsx` + route `path="*"` dans `main.tsx` (page 404 avec bouton retour catalogue)
+- [x] Créer `src/pages/NotFoundPage.tsx` + route `path="*"` dans `main.tsx` (page 404 avec bouton retour catalogue)
 
 ---
 
@@ -146,9 +146,10 @@
 - [x] Intégré dans `PublishPage.tsx` uniquement (PAS dans EditArticlePage — collision de clé)
 - [x] `clearDraft()` appelé dans le handler `onSubmit` après création réussie
 - [x] Auto-save sur changement : `onValuesChange={saveDraft}` passé à `<ArticleForm />` → branché sur le validateur `onChange` de TanStack Form (équivalent à `useStore` + `useEffect`, sans subscription manuelle)
-- [ ] Bouton "Réinitialiser" dans `PublishPage` doit aussi appeler `clearDraft()` (actuellement seul `form.reset()` est appelé, le brouillon localStorage persiste)
-- [ ] `ArticleFormDialog` (header) : formulaire non réinitialisé à la fermeture du dialog — les champs saisis restent si on rouvre ; utiliser `renderActions` pour exposer `reset` et appeler `form.reset()` dans `onOpenChange`
-- [ ] `ArticleFormDialog` (header) : saisie perdue à la fermeture (pas de draft) — décision à prendre : brancher `saveDraft`/`clearDraft` ou accepter la perte (dialog = saisie rapide)
+- [x] Bouton "Réinitialiser" dans `PublishPage` appelle aussi `clearDraft()` via la prop `onReset` de `ArticleForm`
+- [x] **Fix bug** : `ArticleForm` accepte une prop `resetEmpty` — `PublishPage` la passe `true` pour que le reset force des valeurs vides (avant : `form.reset()` restaurait au brouillon localStorage = effet nul). `EditArticlePage` ne la passe pas → comportement par défaut (reset = retour aux valeurs de l'article)
+- [x] `ArticleFormDialog` réinitialisé à la fermeture du dialog : remount via `key` incrémenté dans `onOpenChange`
+- [x] `ArticleFormDialog` (header) : saisie perdue à la fermeture — décision prise (dialog = saisie rapide, pas de draft, évite collision de clé avec PublishPage)
 
 ### 3.2 Édition d'annonce — 1,5 pt
 
@@ -162,21 +163,15 @@
 
 ### 3.3 Tests composants — 1,5 pt
 
-- [ ] Installer les dépendances de test si manquantes (`@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`)
-- [ ] Vérifier `src/test/setup.ts` (import `@testing-library/jest-dom`)
-- [ ] Créer `src/components/ArticleCard.test.tsx`
-    - Test 1 : affiche le titre, le prix formaté ("12,50 €"), le nom du vendeur
-    - Test 2 : bouton favori appelle `onToggleFavorite` au clic
-    - Test 3 : le lien pointe vers `/articles/:id`
-- [ ] Créer `src/components/ArticleForm.test.tsx` (TanStack Form + Zod)
-    - Test 4 : soumettre un formulaire vide affiche les messages d'erreur Zod (validation `onSubmit`)
-    - Test 5 : les `defaultValues` pré-remplissent les champs (mode édition)
-- [ ] Créer `src/lib/articleSchema.test.ts`
-    - Test : schéma Zod rejette les données invalides (titre trop court, prix négatif, etc.)
-- [ ] Créer `src/lib/formatters.test.ts`
-    - Test 6 : `formatPrice(12.5)` retourne `"12,50 €"`
-    - Test 7 : `formatDate("2026-04-15T10:00:00Z")` retourne `"15/04/2026"`
-- [ ] Vérifier que `pnpm test` passe avec 0 erreur
+- [x] Dépendances de test déjà installées (`@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jsdom`)
+- [x] `src/test/setup.ts` importe `@testing-library/jest-dom/vitest`
+- [x] `vitest.config.ts` : alias `@/` + `include: ["src/**/*.{test,spec}.{ts,tsx}"]` pour scoper hors `.claude/`
+- [x] `src/components/ArticleCard.test.tsx` (3 tests : titre/prix/vendeur, click favori, état actif aria-label)
+- [x] `src/components/ArticleForm.test.tsx` (2 tests : defaultValues préremplis, soumission vide bloquée)
+- [x] `src/types/article.test.ts` (9 tests : schéma Zod valide/invalide sur tous les champs)
+- [x] `src/lib/formatters.test.ts` (5 tests : `formatPrice`, `formatDate`)
+- [x] `pnpm test` → **19 tests passent** dans 4 fichiers
+- [x] `src/test/setup.ts` : mocks `ResizeObserver`, `hasPointerCapture`, `releasePointerCapture`, `scrollIntoView` (jsdom n'a pas ces APIs natives utilisées par Radix Tooltip/Select/Slider)
 
 ### 3.4 Design responsive — 1,5 pt
 
@@ -184,20 +179,21 @@
 - [x] `App.tsx` navbar : texte masqué sur mobile (`hidden sm:block`), icônes seules visibles
 - [x] `ArticleForm.tsx` : champs en colonne sur mobile (layout `FieldGroup` = colonne par défaut)
 - [x] `ArticleDetailPage.tsx` : image pleine largeur sur mobile (`grid md:grid-cols-2`), `Card` détail en dessous
-- [ ] `MyArticlesPage.tsx` : `ArticleRow` en colonne sur mobile (image au-dessus, infos en dessous) — actuellement `flex-row` fixe, déborde sur petits écrans
-- [ ] `FavoritesPage.tsx` : vérifier lisibilité `Item` sur mobile (titre + prix + bouton dans une petite largeur)
-- [ ] `CataloguePage.tsx` : filtres (Collapsible) lisibles et utilisables sur mobile — slider prix utilisable au doigt
-- [ ] `PublishPage.tsx` / `EditArticlePage.tsx` : `ScrollArea` du formulaire fonctionne bien sur mobile (pas de débordement, champs accessibles)
-- [ ] `NotFoundPage.tsx` : responsive dès la création
-- [ ] **Tester chaque page à 375px** dans DevTools : contenu lisible, pas de débordement horizontal, navigation utilisable
+- [x] `MyArticlesPage.tsx` : `ArticleRow` en `flex-col sm:flex-row` (image full-width mobile, à côté en sm+), CardTitle stack mobile, boutons full-width mobile
+- [x] `FavoritesPage.tsx` : `Item` shadcn déjà compact (size-14 image + ItemTitle/Description + 1 icône), tient sur 375px
+- [x] `CataloguePage.tsx` : barre filtres en `flex-wrap`, input `min-w-0 flex-1`, "résultats" caché mobile, label "Effacer les filtres" caché mobile (icône seule)
+- [x] `PublishPage.tsx` / `EditArticlePage.tsx` : `ScrollArea` déjà OK sur mobile (FieldGroup en colonne, formulaire scrollable)
+- [x] `NotFoundPage.tsx` : responsive d'emblée (Empty centré, padding responsive)
+- [ ] **Tester chaque page à 375px** dans DevTools : à valider visuellement avant rendu
 
 ---
 
 ## Phase 4 — Qualité technique (5 pts)
 
-- [ ] `npx tsc --noEmit` → **0 erreur** (à vérifier avant chaque commit important)
-- [ ] `pnpm lint` → **0 erreur** oxlint
-- [ ] `pnpm format` → formatter tout le code avant la soutenance
+- [x] `npx tsc --noEmit` → **0 erreur** (vérifié sur cette branche)
+- [x] `pnpm lint` → **0 erreur** oxlint (68 fichiers, 93 règles)
+- [x] `pnpm format` → exécuté, code formaté
+- [x] `pnpm build` → OK (production build vérifié)
 - [x] Pas de `any` TypeScript dans tout le code
 - [x] Chaque page gérant des données affiche : état de chargement ET message d'erreur
 - [x] Nommage clair : composants en PascalCase, hooks en camelCase commençant par `use`, fonctions en camelCase verbes
@@ -215,6 +211,79 @@
 - [ ] `.env` non commité (vérifier `.gitignore`)
 - [ ] Les 3 membres du groupe ont des commits dans l'historique
 - [ ] Branche `main` = version finale
+
+---
+
+## Phase 6 — Polish QA & Design (post-implémentation initiale)
+
+### 6.1 Composants shadcn ajoutés
+
+- [x] `Tooltip` + `TooltipProvider` global dans `RootLayout` (delayDuration 300ms)
+- [x] `Avatar` + `AvatarFallback` (initiale du nom vendeur)
+- [x] `Sheet` (installé pour usage futur)
+
+### 6.2 Bugs fonctionnels corrigés
+
+- [x] `ArticleCard.tsx` : bouton "Voir" avait `stopPropagation` mais aucun handler → bouton cassé. Ajout de `handleViewDetail()` dans `onClick`
+- [x] `ArticleDetailPage.tsx` : `ErrorMessage` standalone sur 404 → user bloqué sans bouton retour. Wrappé avec `PageHeader`
+- [x] `EditArticlePage.tsx` : 2× `ErrorMessage` standalone (404 + accès refusé) → idem fix avec `PageHeader` adapté
+- [x] `ArticleCardSkeleton.tsx` : `h-60` ≠ `ArticleCard` `h-56` → saut de layout corrigé (`h-56`)
+- [x] `PublishPage` : reset ne vidait pas vraiment le form quand un brouillon existait — fix via prop `resetEmpty` sur `ArticleForm`
+
+### 6.3 Tooltips sur boutons icônes
+
+- [x] `ArticleCard` : Toggle favori
+- [x] `FavoritesPage` : bouton retirer
+- [x] `CataloguePage` : trigger filtre, "Effacer les filtres" (label caché mobile)
+- [x] `MyArticlesPage` : bouton supprimer (icône-only ghost)
+
+### 6.4 Avatar + identité visuelle
+
+- [x] `ArticleCard` footer : Avatar size-7 + nom vendeur
+- [x] `ArticleDetailPage` section vendeur : Avatar size-10 + nom + date
+
+### 6.5 Refonte visuelle MyArticlesPage
+
+- [x] Card avec `hover:shadow-md`, image plus grande (`sm:w-44`)
+- [x] Header : titre + prix hiérarchisés à gauche, **bouton Supprimer en icon-only ghost** discret avec Tooltip à droite
+- [x] 3 badges (catégorie + état + taille)
+- [x] **Description preview** (line-clamp-2)
+- [x] Footer : icône calendrier + date à gauche, bouton **Modifier primary `size="sm"`** avec icône à droite
+- [x] Header de page : sous-titre "N annonces en ligne", bouton Publier avec icône PlusSign et label adaptatif (mobile "Publier" / desktop "Publier une annonce")
+
+### 6.6 ArticleForm restructuré
+
+- [x] 3 sections sémantiques avec `FieldSet` + `FieldLegend` : "Informations générales" / "Détails du produit" / "Photo"
+- [x] Grid 2-col `sm+` pour prix+taille et catégorie+état (form plus compact en desktop)
+- [x] Bouton "Réinitialiser" : `variant="ghost"` + icône `ArrowReloadHorizontalIcon` (moins prominent)
+- [x] Bouton submit : `<Spinner />` quand `isLoading`
+
+### 6.7 NotFoundPage repensée
+
+- [x] Grand "404" en visuel (`text-7xl/8xl`, `text-primary/20`)
+- [x] Bouton retour avec icône `ArrowLeft01Icon`
+
+### 6.8 Violations shadcn corrigées
+
+- [x] `App.tsx` : `h-7 w-7` → `size-7`
+- [x] `ArticleCard.tsx` : `h-8 w-8` → `size-8` sur Toggle favori
+- [x] Icônes dans Button (PageHeader, MyArticlesPage Modifier/Supprimer, NotFoundPage) : `mr-1 size-4` → `data-icon="inline-start"`
+
+### 6.9 Padding ScrollArea — focus rings et hover shadows
+
+- [x] `PublishPage` / `EditArticlePage` : inner `<div>` passe de `pb-4` à `p-1 pb-4` (4px breathing pour focus rings 3px)
+- [x] `MyArticlesPage` (cards) : passe à `p-2 pb-4` (8px pour `hover:shadow-md`)
+- [x] `FavoritesPage` (Items) : `ItemGroup` → `p-1 pb-4`
+- [x] `CataloguePage` (skeleton + grid) : passe à `p-2 pb-4` (cards avec hover shadow)
+
+### 6.10 Tests adaptés
+
+- [x] `ArticleCard.test.tsx` : wrapper `TooltipProvider` ajouté dans `renderCard` (sinon `Tooltip must be used within TooltipProvider`)
+
+### 6.11 Responsive amélioré
+
+- [x] `MyArticlesPage` `ArticleRow` : `flex-col sm:flex-row` (image full-width mobile, à côté sm+), titre+prix stack mobile, boutons full-width mobile
+- [x] `CataloguePage` : barre top en `flex-wrap`, input `min-w-0 flex-1`, "résultats" caché mobile, label "Effacer" caché mobile
 
 ---
 
@@ -238,3 +307,8 @@
 | PageHeader                | `src/components/PageHeader.tsx` — réutilisé dans PublishPage, EditArticlePage, ArticleDetailPage                                                                         |
 | Nav responsive            | Texte masqué `hidden sm:block`, icônes seules sur mobile                                                                                                                 |
 | Bouton Effacer filtres    | `variant="ghost"` — pas `destructive` (trop agressif pour une action secondaire)                                                                                         |
+| TooltipProvider           | Global dans `RootLayout` avec `delayDuration={300}` — tous les Tooltip de l'app héritent                                                                                 |
+| Reset form (Publish/Edit) | `resetEmpty` prop sur `ArticleForm` : Publish=true (vide tout), Edit=false (restaure article)                                                                            |
+| Padding ScrollArea        | Padding intérieur (`p-1` pour forms, `p-2` pour cards avec hover-shadow) — sinon focus rings et shadows clipés par `overflow:hidden` du viewport                         |
+| Icônes dans Button        | `data-icon="inline-start"` (pas `mr-2 size-4`) — règle shadcn, le composant Button gère le sizing et spacing                                                             |
+| Identité vendeur          | `Avatar` + `AvatarFallback` initiale — réutilisé dans `ArticleCard` (size-7) et `ArticleDetailPage` (size-10)                                                            |
