@@ -34,7 +34,7 @@ export default function App() {
             <header className="bg-background/95 supports-backdrop-filter:bg-background/80 fixed inset-x-0 top-0 z-50 h-14 border-b backdrop-blur-sm">
                 <div className="container mx-auto flex h-full max-w-4xl items-center justify-between px-4">
                     <NavLink to="/" className="flex items-center gap-2">
-                        <div className="bg-primary text-primary-foreground flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold">
+                        <div className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md text-sm font-bold">
                             V
                         </div>
                         <span className="hidden font-bold sm:block">
