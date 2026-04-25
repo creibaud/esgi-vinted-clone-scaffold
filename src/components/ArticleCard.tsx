@@ -6,6 +6,7 @@ import { findCategoryLabel, findConditionLabel } from "@/lib/article";
 import { formatDate, formatPrice } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type { Article } from "@/types/article";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -16,6 +17,7 @@ import {
     CardTitle,
 } from "./ui/card";
 import { Toggle } from "./ui/toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface ArticleCardProps {
     readonly article: Article;
@@ -32,6 +34,7 @@ export function ArticleCard({
 
     const categoryLabel = findCategoryLabel({ category: article.category });
     const conditionLabel = findConditionLabel({ condition: article.condition });
+    const userInitial = article.userName.charAt(0).toUpperCase();
 
     function handleViewDetail() {
         navigate(`/articles/${article.id}`);
@@ -49,28 +52,37 @@ export function ArticleCard({
                     className="h-56 w-full transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
                 />
 
-                <Toggle
-                    className="bg-background/80 absolute top-2 right-2 h-8 w-8 rounded-full backdrop-blur-sm"
-                    pressed={isFavorite}
-                    onPressedChange={onToggleFavorite}
-                    onClick={(e) => e.stopPropagation()}
-                    variant="outline"
-                    aria-label={
-                        isFavorite
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Toggle
+                            className="bg-background/80 absolute top-2 right-2 size-8 rounded-full backdrop-blur-sm"
+                            pressed={isFavorite}
+                            onPressedChange={onToggleFavorite}
+                            onClick={(e) => e.stopPropagation()}
+                            variant="outline"
+                            aria-label={
+                                isFavorite
+                                    ? "Retirer des favoris"
+                                    : "Ajouter aux favoris"
+                            }
+                        >
+                            <HugeiconsIcon
+                                icon={FavouriteIcon}
+                                className={cn(
+                                    "size-4 transition",
+                                    isFavorite
+                                        ? "fill-red-500 text-red-500"
+                                        : "fill-transparent",
+                                )}
+                            />
+                        </Toggle>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        {isFavorite
                             ? "Retirer des favoris"
-                            : "Ajouter aux favoris"
-                    }
-                >
-                    <HugeiconsIcon
-                        icon={FavouriteIcon}
-                        className={cn(
-                            "size-4 transition",
-                            isFavorite
-                                ? "fill-red-500 text-red-500"
-                                : "fill-transparent",
-                        )}
-                    />
-                </Toggle>
+                            : "Ajouter aux favoris"}
+                    </TooltipContent>
+                </Tooltip>
 
                 <div className="absolute bottom-2 left-2 flex gap-1.5">
                     <Badge
@@ -110,17 +122,28 @@ export function ArticleCard({
             </CardContent>
 
             <CardFooter className="flex items-center justify-between px-4 py-3">
-                <div className="flex flex-col">
-                    <span className="text-xs font-medium">
-                        {article.userName}
-                    </span>
-                    <span className="text-muted-foreground text-xs">
-                        {formatDate(article.createdAt)}
-                    </span>
+                <div className="flex items-center gap-2">
+                    <Avatar className="size-7">
+                        <AvatarFallback className="text-xs">
+                            {userInitial}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                        <span className="text-xs font-medium">
+                            {article.userName}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                            {formatDate(article.createdAt)}
+                        </span>
+                    </div>
                 </div>
                 <Button
-                    className="hidden transition-all duration-200 sm:block sm:opacity-0 sm:group-hover:opacity-100"
-                    onClick={(e) => e.stopPropagation()}
+                    size="sm"
+                    className="hidden transition-all duration-200 sm:inline-flex sm:opacity-0 sm:group-hover:opacity-100"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewDetail();
+                    }}
                 >
                     Voir
                 </Button>

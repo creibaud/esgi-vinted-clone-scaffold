@@ -4,7 +4,7 @@ import { Skeleton } from "./ui/skeleton";
 export function ArticleCardSkeleton() {
     return (
         <Card className="overflow-hidden py-0">
-            <Skeleton className="h-60 w-full rounded-none" />
+            <Skeleton className="h-56 w-full rounded-none" />
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <Skeleton className="h-4 w-2/3" />
