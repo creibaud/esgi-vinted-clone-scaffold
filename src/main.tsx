@@ -9,6 +9,7 @@ import CataloguePage from "@/pages/CataloguePage.tsx";
 import EditArticlePage from "@/pages/EditArticlePage.tsx";
 import FavoritesPage from "@/pages/FavoritesPage.tsx";
 import MyArticlesPage from "@/pages/MyArticlesPage.tsx";
+import NotFoundPage from "@/pages/NotFoundPage.tsx";
 import PublishPage from "@/pages/PublishPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
@@ -32,6 +33,7 @@ createRoot(document.getElementById("root")!).render(
                             path="/articles/:id/edit"
                             element={<EditArticlePage />}
                         />
+                        <Route path="*" element={<NotFoundPage />} />
                     </Route>
                 </Routes>
             </BrowserRouter>
