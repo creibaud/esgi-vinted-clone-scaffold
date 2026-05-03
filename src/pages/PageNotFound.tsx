@@ -1,26 +1,44 @@
+import { Link } from "react-router-dom";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Button } from "@/components/ui/button";
 import {
     Empty,
     EmptyContent,
     EmptyDescription,
     EmptyHeader,
     EmptyTitle,
-} from "@/components/ui/empty"
+} from "@/components/ui/empty";
 
 export default function PageNotFound() {
     return (
-        <Empty>
-            <EmptyHeader>
-                <EmptyTitle>404 - Page non trouvée</EmptyTitle>
-                <EmptyDescription>
-                    La page que vous recherchez n&apos;existe pas. Essayez de rechercher
-                    ce dont vous avez besoin ci-dessous.
-                </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-                <EmptyDescription>
-                    Retour à la <a href="/">PAGE D'ACCUEIL</a>
-                </EmptyDescription>
-            </EmptyContent>
-        </Empty>
-    )
+        <div className="flex h-full w-full items-center justify-center px-4">
+            <Empty>
+                <EmptyHeader>
+                    <p
+                        className="text-primary/20 text-7xl font-black tracking-tight select-none sm:text-8xl"
+                        aria-hidden
+                    >
+                        404
+                    </p>
+                    <EmptyTitle>Page introuvable</EmptyTitle>
+                    <EmptyDescription>
+                        La page que vous cherchez n'existe pas ou a été
+                        déplacée.
+                    </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                    <Button asChild>
+                        <Link to="/">
+                            <HugeiconsIcon
+                                icon={ArrowLeft01Icon}
+                                data-icon="inline-start"
+                            />
+                            Retour au catalogue
+                        </Link>
+                    </Button>
+                </EmptyContent>
+            </Empty>
+        </div>
+    );
 }
