@@ -165,7 +165,7 @@
 
 - [x] Dépendances de test déjà installées (`@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jsdom`)
 - [x] `src/test/setup.ts` importe `@testing-library/jest-dom/vitest`
-- [x] `vitest.config.ts` : alias `@/` + `include: ["src/**/*.{test,spec}.{ts,tsx}"]` pour scoper hors `.claude/`
+- [x] `vitest.config.ts` : alias `@/` + `include: ["src/**/*.{test,spec}.{ts,tsx}"]` pour limiter les tests à `src/`
 - [x] `src/components/ArticleCard.test.tsx` (3 tests : titre/prix/vendeur, click favori, état actif aria-label)
 - [x] `src/components/ArticleForm.test.tsx` (2 tests : defaultValues préremplis, soumission vide bloquée)
 - [x] `src/types/article.test.ts` (9 tests : schéma Zod valide/invalide sur tous les champs)
