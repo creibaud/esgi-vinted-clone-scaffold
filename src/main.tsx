@@ -10,6 +10,7 @@ import EditArticlePage from "@/pages/EditArticlePage.tsx";
 import FavoritesPage from "@/pages/FavoritesPage.tsx";
 import MyArticlesPage from "@/pages/MyArticlesPage.tsx";
 import PublishPage from "@/pages/PublishPage.tsx";
+import PageNotFound from "@/pages/PageNotFound.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -31,6 +32,10 @@ createRoot(document.getElementById("root")!).render(
                         <Route
                             path="/articles/:id/edit"
                             element={<EditArticlePage />}
+                        />
+                        <Route
+                            path="/*"
+                            element={<PageNotFound />}
                         />
                     </Route>
                 </Routes>
