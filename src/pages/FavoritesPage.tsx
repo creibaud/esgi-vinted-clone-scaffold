@@ -21,6 +21,11 @@ import {
     ItemTitle,
 } from "@/components/ui/item";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useFavoriteArticles, useToggleFavorite } from "@/hooks/article.hooks";
 import { formatPrice } from "@/lib/formatters";
 import type { Article } from "@/types/article";
@@ -71,7 +76,7 @@ export default function FavoritesPage() {
                         </Button>
                     </Empty>
                 ) : (
-                    <ItemGroup className="pb-4">
+                    <ItemGroup className="p-1 pb-4">
                         {favorites.map((article) => (
                             <FavoriteItem
                                 key={article.id}
@@ -116,21 +121,26 @@ function FavoriteItem({ article, onRemove }: FavoriteItemProps) {
                 <ItemDescription>{formatPrice(article.price)}</ItemDescription>
             </ItemContent>
             <ItemActions>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-red-500 hover:text-red-600"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onRemove();
-                    }}
-                    aria-label="Retirer des favoris"
-                >
-                    <HugeiconsIcon
-                        icon={FavouriteIcon}
-                        className="size-5 fill-red-500"
-                    />
-                </Button>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-red-500 hover:text-red-600"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRemove();
+                            }}
+                            aria-label="Retirer des favoris"
+                        >
+                            <HugeiconsIcon
+                                icon={FavouriteIcon}
+                                className="size-5 fill-red-500"
+                            />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Retirer des favoris</TooltipContent>
+                </Tooltip>
             </ItemActions>
         </Item>
     );

@@ -27,12 +27,14 @@ export default function PublishPage() {
             />
 
             <ScrollArea className="min-h-0 flex-1 px-4">
-                <div className="pb-4">
+                <div className="p-1 pb-4">
                     <ArticleForm
                         onSubmit={handleSubmit}
                         isLoading={isPending}
                         defaultValues={savedValues ?? undefined}
                         onValuesChange={saveDraft}
+                        onReset={clearDraft}
+                        resetEmpty
                     />
                 </div>
             </ScrollArea>

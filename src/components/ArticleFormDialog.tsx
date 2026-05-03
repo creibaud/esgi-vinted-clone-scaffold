@@ -22,14 +22,22 @@ export function ArticleFormDialog({
     isLoading = false,
 }: ArticleFormDialogProps) {
     const [open, setOpen] = useState(false);
+    const [formInstance, setFormInstance] = useState(0);
 
     async function handleSubmit(data: ArticleFormData) {
         await onSubmit(data);
         setOpen(false);
     }
 
+    function handleOpenChange(nextOpen: boolean) {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+            setFormInstance((n) => n + 1);
+        }
+    }
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 <Button>Publier</Button>
             </DialogTrigger>
@@ -42,6 +50,7 @@ export function ArticleFormDialog({
                 </DialogHeader>
                 <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4 pb-1">
                     <ArticleForm
+                        key={formInstance}
                         id="article-form"
                         onSubmit={handleSubmit}
                         isLoading={isLoading}

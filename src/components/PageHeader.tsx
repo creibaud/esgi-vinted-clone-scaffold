@@ -22,7 +22,7 @@ export function PageHeader({
                 <Link to={backTo}>
                     <HugeiconsIcon
                         icon={ArrowLeft01Icon}
-                        className="mr-2 size-4"
+                        data-icon="inline-start"
                     />
                     {backLabel}
                 </Link>

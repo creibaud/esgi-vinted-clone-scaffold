@@ -2,6 +2,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { queryClient } from "@/lib/tanstack-query";
 
 interface RootLayoutProps {
@@ -11,7 +12,7 @@ interface RootLayoutProps {
 export function RootLayout({ children }: RootLayoutProps): React.ReactElement {
     return (
         <QueryClientProvider client={queryClient}>
-            {children}
+            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
             <TanStackDevtools
                 plugins={[
                     {

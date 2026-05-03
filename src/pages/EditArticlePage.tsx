@@ -26,19 +26,28 @@ export default function EditArticlePage() {
 
     if (isError || !isSuccess) {
         return (
-            <ErrorMessage
-                title="Article introuvable"
-                message="Cet article n'existe pas ou a été supprimé."
-            />
+            <div className="flex h-full flex-col">
+                <PageHeader backTo="/" backLabel="Retour au catalogue" />
+                <ErrorMessage
+                    title="Article introuvable"
+                    message="Cet article n'existe pas ou a été supprimé."
+                />
+            </div>
         );
     }
 
     if (article.userId !== currentUserId) {
         return (
-            <ErrorMessage
-                title="Accès refusé"
-                message="Vous n'êtes pas le propriétaire de cette annonce."
-            />
+            <div className="flex h-full flex-col">
+                <PageHeader
+                    backTo={`/articles/${id}`}
+                    backLabel="Retour à l'annonce"
+                />
+                <ErrorMessage
+                    title="Accès refusé"
+                    message="Vous n'êtes pas le propriétaire de cette annonce."
+                />
+            </div>
         );
     }
 
@@ -57,7 +66,7 @@ export default function EditArticlePage() {
             />
 
             <ScrollArea className="min-h-0 flex-1 px-4">
-                <div className="pb-4">
+                <div className="p-1 pb-4">
                     <ArticleForm
                         onSubmit={handleSubmit}
                         isLoading={isPending}
